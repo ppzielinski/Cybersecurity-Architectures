@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mermaid Example</title>
+</head>
+<body>
+  <div class="mermaid">
+    sequenceDiagram
+    participant A as Attacker
+    participant I as Internet
+    participant W as Web Server (ACIS)
+    participant S as Apache Struts 2
+    A->>I: Send malicious HTTP request (Content-Type header)
+    I->>W: Forward request to ACIS
+    W->>S: Process request with Jakarta Multipart parser
+    S-->>W: Exception triggered by invalid Content-Type
+    W->>S: Exception handler executes OGNL payload
+    S-->>A: Remote Code Execution (RCE) achieved
+  </div>
+
+  <div class="mermaid">
+    graph TD
+    A[Attacker] -->|Exploit| ACIS[ACIS Web Server]
+    ACIS -->|Shared File System| FS[File Share with Credentials]
+    FS -->|Stolen Credentials| DB1[Database 1]
+    FS -->|Stolen Credentials| DB2[Database 2]
+    ACIS -->|No Segmentation| DB3[Database 3]
+    DB1 -->|Weak Password| Access[Access Granted]
+    DB2 -->|Weak Password| Access
+    DB3 -->|Excessive Privileges| Access
+  </div>
+  <div class="mermaid">
+    flowchart TD
+    A[Attacker] -->|C2 Channel| ACIS[Compromised ACIS]
+    ACIS -->|Exfiltrate Data| HTTPS[HTTPS Traffic]
+    HTTPS -->|Encrypted| IDS[IDS/IPS with Expired SSL Cert]
+    IDS -->|Cannot Decrypt| Allow[Traffic Allowed]
+    Allow -->|Data Exfiltrated| A
+    subgraph Monitoring Failure
+        IDS -.->|No Alerts| IS[IS Team]
+    end
+  </div>
+  <div class="mermaid">
+    graph TD
+    subgraph Level 4: Regulatory Bodies
+        R1[FTC] -->|Weak Enforcement| L3
+        R2[CFPB] -->|No Proactive Exams| L3
+    end
+    subgraph Level 3: Management/Board
+        M1[Board] -->|Prioritize Revenue| L2
+        M2[Management] -->|Ignore Audit Findings| L2
+    end
+    subgraph Level 2: IT/IS Teams
+        T1[IS Team] -->|Missed Vulnerability| L1
+        T2[IT Team] -->|No Patching| L1
+    end
+    subgraph Level 1: Technical Controls
+        C1[IDS/IPS] -->|Expired SSL Cert| Fail
+        C2[Vulnerability Scanner] -->|Missed Apache Struts| Fail
+    end
+    Fail --> Breach[Breach Occurs]
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true});</script>
+</body>
+</html>
