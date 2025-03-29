@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8"/>
+    <title>Network Security Architecture Deep Dive</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/theme/simple.min.css" rel="stylesheet"/>
+    <style>
+        .code {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .qa {
+            border-left: 3px solid #2c3e50;
+            padding-left: 15px;
+            margin: 15px 0;
+        }
+
+        .prof-script {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <!-- Slide 1: Title Slide -->
+        <section>
+            <h2>Network Security Security Architecture</h2>
+            <h4>For preventing Target & similar retail Breaches</h4>
+        </section>
+
+        <!-- Slide 2: Recap: The Target Breach (2013) -->
+        <section>
+            <section>
+                <h3>Recap: The Target Breach (2013)</h3>
+                <small>A failure of classic defense-in-depth against a determined APT.</small>
+                <div class="mermaid">
+                    sequenceDiagram
+                    participant A as Attacker
+                    participant V as HVAC Vendor
+                    participant T as Target Network
+                    participant P as POS Systems
+                    participant S as Staging Server
+                    participant C as C2 Server
+
+                    Note over A,V: Initial Compromise
+                    A->>V: Phishing Attack
+                    V-->>A: Stolen Credentials
+                    A->>T: Login with Stolen Credentials
+                    T-->>A: Access Granted
+
+                    Note over A,T: Lateral Movement
+                    loop Network Scanning
+                    A->>T: Scan for Vulnerabilities
+                    T-->>A: Vulnerability Info
+                    end
+
+                    A->>P: Install Malware on POS
+                    P->>S: Exfiltrate Card Data
+                    S->>C: Send Data to C2 Server
+                </div>
+                <small>Key Failures: Vendor Access Control, Network Segmentation, Malware Detection, Exfiltration
+                    Monitoring.</small>
+            </section>
+            <section>
+                <h4>Hands-on: Simulating Basic Network Scan (Nmap)</h4>
+                <p>Attackers scan networks to find vulnerable systems for lateral movement.</p>
+                <pre class="code"><code>
+# On Linux/macOS (requires Nmap installed)
+# Scan a target IP for common open ports
+# WARNING: Only scan systems you have explicit permission to test!
+# Example: Scan localhost
+sudo nmap -sV -T4 127.0.0.1
+
+# In Docker (using nmap image)
+docker run --rm instrumentisto/nmap -sV -T4 &lt;target_ip&gt;
+                </code></pre>
+                <p>Note: Replace &lt;target_ip&gt; with an authorized target IP.</p>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The Target breach started with compromised HVAC vendor credentials - a classic 'Trusted
+                        Relationship' initial access (MITRE T1199). Once inside, weak internal segmentation allowed
+                        attackers to move laterally from a low-value network segment to the highly sensitive
+                        Point-of-Sale environment. Their RAM scraping malware wasn't detected, and the massive data
+                        exfiltration went unnoticed for weeks. This highlights the failure of relying solely on
+                        perimeter defenses and signature-based detection."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why was network segmentation so critical in the Target breach?</p>
+                    <p><strong>A:</strong> Proper segmentation would have prevented the attackers, who initially gained
+                        access to a less sensitive network zone (likely for vendor management), from being able to
+                        directly reach or scan the POS systems in the PCI-controlled zone. It acts as a firewall
+                        *inside* the network."</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 3: Introduction to Modern Security Architecture -->
+        <section>
+            <section>
+                <h3>Introduction to Modern Security Architecture</h3>
+                <p>Key components to prevent breaches like Target's: Zero Trust Architecture, Micro-segmentation,
+                    Extended Detection and Response (XDR), Security Orchestration, Automation, and Response (SOAR).
+                    Using AWS services to implement these components.</p>
+            </section>
+        </section>
+
+        <!-- Slide 4: Zero Trust Architecture on AWS -->
+        <section>
+            <section>
+                <h3>Zero Trust Architecture on AWS</h3>
+                <p>Always verify access based on identity, device, and behavior. Use AWS IAM for least privilege and
+                    MFA.</p>
+                <div class="mermaid">
+                    flowchart LR
+                    subgraph "ZTA Core Pillars"
+                    A[Identity]
+                    B[Device]
+                    C[Network/Infra]
+                    D[Application/Workload]
+                    end
+                    A --> E{Policy Decision Point}
+                    B --> E
+                    C --> E
+                    D --> E
+                    E --> F[Policy Enforcement Point]
+                    User --> F
+                    F --> Resource
+                    G[Continuous Monitoring & Analytics] --> E
+                </div>
+            </section>
+            <section>
+                <h4>Hands-on: Setting up IAM Roles</h4>
+                <pre class="code"><code>
+# Create a policy
+aws iam create-policy --policy-name EC2ReadOnly --policy-document file://policy.json
+
+# Create a role
+aws iam create-role --role-name EC2Role --assume-role-policy-document file://trust.json
+
+# Attach policy to role
+aws iam attach-role-policy --role-name EC2Role --policy-arn arn:aws:iam::aws:policy/EC2ReadOnly
+                </code></pre>
+                <p>Ensure policy.json and trust.json are properly configured.</p>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"In Zero Trust, we don't trust any user or device by default, even if they are inside the
+                        network. AWS IAM helps enforce least privilege by allowing us to define precise permissions for
+                        each role. Here, we're creating a role for EC2 instances that can only describe EC2 resources,
+                        nothing more."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> What is the benefit of using IAM roles over user accounts for EC2 instances?
+                    </p>
+                    <p><strong>A:</strong> IAM roles provide temporary credentials that are automatically rotated,
+                        reducing the risk of credential theft. They also allow for easier management of permissions at
+                        scale."</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 5: Network Segmentation in AWS -->
+        <section>
+            <section>
+                <h3>Network Segmentation in AWS</h3>
+                <p>Isolate systems using Amazon VPCs, security groups, and network ACLs to limit lateral movement.</p>
+                <div class="mermaid">
+                    graph TD
+                    subgraph "AWS Cloud"
+                    subgraph "Management VPC"
+                    A[Management Console]
+                    D[Jump Host]
+                    end
+                    subgraph "POS VPC"
+                    C[POS Systems]
+                    F[API Gateway]
+                    end
+                    subgraph "Vendor Network"
+                    B[Vendor Services]
+                    end
+                    A --> D
+                    D --> C
+                    B --> F
+                    F --> C
+                    end
+                </div>
+            </section>
+            <section>
+                <h4>Hands-on: Configuring Security Groups</h4>
+                <pre class="code"><code>
+# Create security group
+aws ec2 create-security-group --group-name POS-SG --description "Security group for POS systems" --vpc-id vpc-12345678
+
+# Allow SSH from management IP
+aws ec2 authorize-security-group-ingress --group-id sg-12345678 --protocol tcp --port 22 --cidr 192.168.1.0/24
+
+# Allow HTTP from API Gateway security group
+aws ec2 authorize-security-group-ingress --group-id sg-12345678 --protocol tcp --port 80 --source-group sg-87654321
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"In this setup, the POS systems are in their own VPC, and access is strictly controlled.
+                        Management can SSH via a jump host, and vendors interact through APIs, not direct network
+                        access. Security groups act as virtual firewalls for instances, allowing only specified
+                        traffic."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> What’s the difference between security groups and network ACLs?</p>
+                    <p><strong>A:</strong> Security groups are stateful and associated with instances, while network
+                        ACLs are stateless and associated with subnets. Security groups are generally used for
+                        finer-grained control at the instance level."</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 6: Threat Detection with AWS Services -->
+        <section>
+            <section>
+                <h3>Threat Detection with AWS Services</h3>
+                <p>Use Amazon GuardDuty for intelligent threat detection, AWS CloudTrail for API logging, AWS Security
+                    Hub for centralized monitoring.</p>
+            </section>
+            <section>
+                <h4>Hands-on: Enabling GuardDuty</h4>
+                <pre class="code"><code>
+# Create GuardDuty detector
+aws guardduty create-detector --enable
+
+# List findings (after some time)
+aws guardduty list-findings --detector-id &lt;detector-id&gt;
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"GuardDuty analyzes continuous streams of data from your AWS accounts and generates findings when
+                        it identifies potential security issues. It's a managed service that requires minimal
+                        configuration, making it easy to enhance your security posture."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> What types of threats can GuardDuty detect?</p>
+                    <p><strong>A:</strong> GuardDuty can detect threats like reconnaissance, instance compromise,
+                        account compromise, and bucket compromise, among others."</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 7: Automated Response using AWS Lambda -->
+        <section>
+            <section>
+                <h3>Automated Response using AWS Lambda</h3>
+                <p>Set up automated actions in response to security events using Lambda and CloudWatch Events.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    participant G as GuardDuty
+                    participant C as CloudWatch Events
+                    participant L as Lambda
+                    participant E as EC2
+
+                    G->>C: Finding Event
+                    C->>L: Trigger Lambda
+                    L->>E: Isolate Instance
+                </div>
+            </section>
+            <section>
+                <h4>Hands-on: Creating a Lambda Function</h4>
+                <pre class="code"><code>
+# Lambda function code (Python)
+import boto3
+
+def lambda_handler(event, context):
+    ec2 = boto3.client('ec2')
+    instance_id = event['detail']['resource']['instanceDetails']['instanceId']
+    ec2.stop_instances(InstanceIds=[instance_id])
+    return {
+        'statusCode': 200,
+        'body': f'Stopped instance {instance_id}'
+    }
+
+# Create CloudWatch Events rule
+aws events put-rule --name GuardDutyFindingRule --event-pattern '{"source": ["aws.guardduty"], "detail-type": ["GuardDuty Finding"]}'
+
+# Add permission to Lambda
+aws lambda add-permission --function-name MyLambdaFunction --statement-id GuardDuty --action 'lambda:InvokeFunction' --principal events.amazonaws.com --source-arn arn:aws:events:region:account-id:rule/GuardDutyFindingRule
+
+# Set Lambda as target
+aws events put-targets --rule GuardDutyFindingRule --targets "Id"="1","Arn"="arn:aws:lambda:region:account-id:function:MyLambdaFunction"
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"This setup allows for immediate action when a threat is detected. The Lambda function stops the
+                        compromised instance, preventing further damage. You can customize the response based on the
+                        type of finding or other criteria."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> What are some other actions you can automate with Lambda in response to
+                        security events?</p>
+                    <p><strong>A:</strong> You can snapshot the instance for forensics, revoke IAM credentials, send
+                        notifications, or even trigger a full incident response workflow."</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 8: Data Protection and Encryption -->
+        <section>
+            <section>
+                <h3>Data Protection and Encryption</h3>
+                <p>Use AWS KMS for encrypting data at rest and in transit, Amazon Macie for data discovery.</p>
+            </section>
+            <section>
+                <h4>Hands-on: Encrypting an S3 Bucket</h4>
+                <pre class="code"><code>
+aws s3api put-bucket-encryption --bucket my-bucket --server-side-encryption-configuration '{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]}'
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"Encrypting data ensures that even if attackers access storage, they can't read the data without
+                        the key. AWS KMS makes this easy to manage and integrate with other services."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why is encryption important for retail data?</p>
+                    <p><strong>A:</strong> Retail data, especially payment information, is highly sensitive. Encryption
+                        protects it from unauthorized access, ensuring compliance with regulations like PCI DSS."</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 9: Application Security with AWS WAF and API Gateway -->
+        <section>
+            <section>
+                <h3>Application Security with AWS WAF and API Gateway</h3>
+                <p>Protect web applications with AWS WAF, secure APIs with API Gateway.</p>
+            </section>
+            <section>
+                <h4>Hands-on: Setting up WAF Rules</h4>
+                <pre class="code"><code>
+aws wafv2 create-web-acl --name MyWAF --scope REGIONAL --default-action Allow={} --rules '[{ "Name": "BlockSQLi", "Priority": 0, "Statement": { "ManagedRuleGroupStatement": { "VendorName": "AWS", "Name": "AWSManagedRulesSQLiRuleSet", "ExcludedRules": [] } }, "Action": { "Block": {} }, "VisibilityConfig": { "SampledRequestsEnabled": true, "CloudWatchMetricsEnabled": true, "MetricName": "BlockSQLi" } }]'
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"WAF protects against common web exploits like SQL injection, while API Gateway ensures secure
+                        and authenticated API access, critical for customer-facing retail applications."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How does WAF help in preventing application-layer attacks?</p>
+                    <p><strong>A:</strong> WAF filters and monitors HTTP/S traffic, blocking malicious requests like SQL
+                        injection or cross-site scripting, protecting the application layer."</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 10: Unified Visibility with XDR -->
+        <section>
+            <section>
+                <h3>Unified Visibility with XDR</h3>
+                <p>Correlates data across domains for better detection using tools like Amazon Detective or third-party
+                    XDR solutions integrated with AWS.</p>
+                <div class="mermaid">
+                    flowchart LR
+                    subgraph XDR_ML_Pipeline
+                    direction TB
+                    D1[Endpoint Telemetry] --> F[Feature Extraction]
+                    D2[Network Flows] --> F
+                    D3[Cloud Logs] --> F
+                    F --> E[Embedding Space]
+                    E --> M[Multi-Task Learner]
+                    M --> A1[Anomaly Detection]
+                    M --> A2[Attack Classification]
+                    M --> A3[Risk Scoring]
+                    end
+                </div>
+            </section>
+            <section>
+                <h4>Hands-on: Analyzing GuardDuty Findings</h4>
+                <pre class="code"><code>
+# List GuardDuty findings
+aws guardduty list-findings --detector-id &lt;detector-id&gt;
+
+# Get details of a finding
+aws guardduty get-findings --detector-id &lt;detector-id&gt; --finding-ids &lt;finding-id&gt;
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"XDR provides a unified view by correlating data from various sources. In AWS, services like
+                        GuardDuty and Detective help in identifying and investigating threats across your
+                        environment."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How does XDR differ from traditional SIEM?</p>
+                    <p><strong>A:</strong> XDR integrates deeply with endpoint, network, and cloud data, using AI/ML for
+                        advanced threat detection and response, whereas SIEM primarily focuses on log collection and
+                        correlation."</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 11: Automated Response with SOAR -->
+        <section>
+            <section>
+                <h3>Automated Response with SOAR</h3>
+                <p>Orchestrate security tools and automate response actions using AWS Step Functions or third-party SOAR
+                    platforms.</p>
+            </section>
+            <section>
+                <h4>Hands-on: Simulating Automated Response</h4>
+                <pre class="code"><code>
+# Similar to the Lambda example, but can be extended with Step Functions for more complex workflows.
+# For example, creating a Step Function that triggers multiple actions based on findings.
+# This requires defining a state machine, which is more involved.
+# For simplicity, refer to the Lambda example.
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"SOAR platforms automate incident response workflows. In AWS, you can use Step Functions to
+                        orchestrate multiple services and actions in response to security events, ensuring rapid
+                        containment and remediation."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> What are the benefits of using SOAR in security operations?</p>
+                    <p><strong>A:</strong> SOAR reduces response times, minimizes human error, and allows security teams
+                        to focus on more strategic tasks by automating routine incident response activities."</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 12: Preventing Breaches Like Target's -->
+        <section>
+            <section>
+                <h3>Preventing Breaches Like Target's</h3>
+                <p>Modern security architecture addresses key failures: Vendor Access Control with strict IAM policies
+                    and MFA, Network Segmentation with isolated VPCs, Malware Detection with GuardDuty and XDR,
+                    Exfiltration Monitoring with CloudTrail and flow logs.</p>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"By implementing these measures, organizations can significantly reduce the risk of breaches
+                        similar to Target's. Each component works together to create a defense-in-depth strategy that is
+                        resilient against modern threats."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> What’s the most critical measure to prevent vendor-related breaches?</p>
+                    <p><strong>A:</strong> Strict vendor access control with IAM policies, MFA, and limited scopes is
+                        critical to prevent initial access, as seen in the Target breach."</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 13: Conclusion and Q&A -->
+        <section>
+            <section>
+                <h3>Conclusion and Q&A</h3>
+                <p>Modern network security architecture leverages Zero Trust, micro-segmentation, advanced detection,
+                    and automation to protect against sophisticated threats. Using AWS services, organizations can
+                    implement these principles effectively.</p>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"We've covered how to build a secure architecture using AWS to prevent breaches like the Target
+                        incident. Now, let's open the floor for any questions you might have."</p>
+                </div>
+            </section>
+        </section>
+
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.5.0/dist/mermaid.min.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        securityLevel: 'loose',
+        theme: 'forest',
+        flowchart: {curve: 'linear'}
+    });
+    Reveal.initialize();
+</script>
+</body>
+</html>

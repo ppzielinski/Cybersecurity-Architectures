@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8"/>
+    <title>Network Security Architecture Deep Dive</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/theme/simple.min.css" rel="stylesheet"/>
+    <style>
+        .code {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .qa {
+            border-left: 3px solid #2c3e50;
+            padding-left: 15px;
+            margin: 15px 0;
+        }
+
+        .prof-script {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+
+        <!-- Slide 1: Title Slide -->
+        <section>
+            <h2>Network Security Architecture: Securing the OSI Layers and Beyond</h2>
+            <p>Exploring security controls, modern frameworks, and breach prevention as of March 28, 2025</p>
+        </section>
+
+        <!-- Slide 2: Introduction to Network Security Architecture -->
+        <section>
+            <section>
+                <h3>1. Introduction to Network Security Architecture</h3>
+                <p>Designing systems to protect networks from threats like the 2013 Target breach.</p>
+                <div class="mermaid">
+                    flowchart TD
+                    A[Threat] --> B[Network]
+                    B --> C[Security Controls]
+                    C --> D[Protected Data]
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Check network interfaces on Linux
+ip link show
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Network security architecture is about safeguarding data across all layers.
+                    Today, we'll use OSI, modern tools, and frameworks to build a robust defense."</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> What’s the primary goal of network security architecture?<br>
+                        <strong>A:</strong> To protect the network and its data from unauthorized access, misuse, or
+                        destruction.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 3: OSI Model Overview -->
+        <section>
+            <section>
+                <h4>2. OSI Model Overview</h4>
+                <div class="mermaid">
+                    flowchart TD
+                    A[Physical] --> B[Data Link]
+                    B --> C[Network]
+                    C --> D[Transport]
+                    D --> E[Session]
+                    E --> F[Presentation]
+                    F --> G[Application]
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# View network traffic on Linux
+sudo tcpdump -i eth0
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"The OSI model helps us categorize threats and controls. Let’s explore each layer
+                    next."</p>
+            </section>
+        </section>
+
+        <!-- Slide 4: Physical Layer Security -->
+        <section>
+            <section>
+                <h3>3. Physical Layer Security</h3>
+                <p>Protecting hardware and connections: access control, surveillance.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Simulate physical security check on AWS
+aws ec2 describe-instances --query "Reservations[*].Instances[*].{ID:InstanceId,State:State.Name}"
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Physical security prevents tampering. In AWS, ensure instances are in secure
+                    regions."</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why is physical security critical?<br>
+                        <strong>A:</strong> Unsecured hardware can be directly accessed or stolen.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 5: Data Link Layer Security -->
+        <section>
+            <section>
+                <h3>4. Data Link Layer Security</h3>
+                <p>VLANs, port security, MAC filtering to prevent spoofing.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Switch->>+Device: Verify MAC
+                    Device-->>-Switch: Authenticated
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Create VLAN in Docker
+docker network create --driver bridge vlan10
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Data Link controls stop local network attacks. Try isolating containers with
+                    Docker."</p>
+            </section>
+        </section>
+
+        <!-- Slide 6: Network Layer Security -->
+        <section>
+            <section>
+                <h3>5. Network Layer Security</h3>
+                <p>Firewalls, IPsec, VPNs to secure routing and traffic.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Set up iptables firewall on Linux
+sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+sudo iptables -P INPUT DROP
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Network layer filters traffic. This iptables rule allows SSH only."</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> What’s the difference between stateful and stateless firewalls?<br>
+                        <strong>A:</strong> Stateful tracks connection state; stateless filters based on rules.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 7: Transport Layer Security -->
+        <section>
+            <section>
+                <h3>6. Transport Layer Security</h3>
+                <p>TLS, port security to ensure end-to-end integrity.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Client->>+Server: TLS Handshake
+                    Server-->>-Client: Encrypted Data
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Install SSL on Linux (Ubuntu)
+sudo apt install certbot -y
+sudo certbot certonly --standalone -d example.com
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"TLS secures data in transit. Let’s set up HTTPS with Certbot."</p>
+            </section>
+        </section>
+
+        <!-- Slide 8: Session Layer Security -->
+        <section>
+            <section>
+                <h3>7. Session Layer Security</h3>
+                <p>MFA, session timeouts to manage connections.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Enable MFA on AWS
+aws iam create-virtual-mfa-device --virtual-mfa-device-name MyMFA
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Session security prevents hijacking. MFA adds a layer of protection."</p>
+            </section>
+        </section>
+
+        <!-- Slide 9: Presentation Layer Security -->
+        <section>
+            <section>
+                <h3>8. Presentation Layer Security</h3>
+                <p>Encryption, antivirus to protect data formats.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Check SSL on MacOS
+openssl s_client -connect example.com:443
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Presentation ensures data is safe before use. Verify SSL strength here."</p>
+            </section>
+        </section>
+
+        <!-- Slide 10: Application Layer Security -->
+        <section>
+            <section>
+                <h3>9. Application Layer Security</h3>
+                <p>WAF, secure coding to protect user interfaces.</p>
+                <div class="mermaid">
+                    flowchart TD
+                    A[User] --> B[WAF]
+                    B --> C[App Server]
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Deploy WAF on AWS
+aws wafv2 create-web-acl --name MyWAF --scope REGIONAL --default-action Allow={}
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Application layer is the front line. WAFs block exploits."</p>
+            </section>
+        </section>
+
+        <!-- Slide 11: Traditional Defense-in-Depth -->
+        <section>
+            <section>
+                <h3>10. Traditional Defense-in-Depth</h3>
+                <p>Layers static controls: firewalls, antivirus.</p>
+                <div class="mermaid">
+                    flowchart TD
+                    A[Threat] --> B[Firewall]
+                    B --> C[Antivirus]
+                    C --> D[IDS]
+                </div>
+            </section>
+            <section>
+                <p class="prof-script">"Traditional methods stack defenses but can be siloed."</p>
+            </section>
+        </section>
+
+        <!-- Slide 12: Limitations of Traditional Approaches -->
+        <section>
+            <section>
+                <h3>11. Limitations of Traditional Approaches</h3>
+                <p>Slow to adapt, lacks integration.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Threat->>+Firewall: Pass
+                    Firewall-->>-IDS: Missed Detection
+                </div>
+            </section>
+            <section>
+                <p class="prof-script">"Siloed tools miss advanced threats like APTs."</p>
+            </section>
+        </section>
+
+        <!-- Slide 13: Zero Trust Architecture -->
+        <section>
+            <section>
+                <h3>12. Zero Trust Architecture</h3>
+                <p>Verify every access request continuously.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    User->>+Server: Access Request
+                    Server->>+Auth: Verify
+                    Auth-->>-Server: Approved
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Simulate Zero Trust in AWS
+aws ec2 authorize-security-group-ingress --group-id sg-123 --protocol tcp --port 22 --cidr 192.168.1.0/24
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Zero Trust assumes breach, verifying all. Restrict SSH here."</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How does Zero Trust differ from perimeter security?<br>
+                        <strong>A:</strong> Verifies every request, not just outside traffic.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 14: XDR -->
+        <section>
+            <section>
+                <h3>13. Extended Detection and Response (XDR)</h3>
+                <p>Integrates endpoint, network, cloud data.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Install CrowdStrike Falcon (example)
+wget -q https://falcon.crowdstrike.com/download/falcon-sensor.deb
+sudo dpkg -i falcon-sensor.deb
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"XDR gives a unified view, catching what IDS misses."</p>
+            </section>
+        </section>
+
+        <!-- Slide 15: SOAR -->
+        <section>
+            <section>
+                <h3>14. Security Orchestration, Automation, Response</h3>
+                <p>Automates incident response.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Alert->>+SOAR: Trigger
+                    SOAR->>+System: Isolate
+                    System-->>-SOAR: Done
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Simulate SOAR with script on Linux
+echo "if [ \$(netstat -tuln | grep :22) ]; then sudo ufw deny 22; fi" > isolate.sh
+chmod +x isolate.sh
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"SOAR speeds up response. This script blocks SSH on alert."</p>
+            </section>
+        </section>
+
+        <!-- Slide 16: AI/ML in Security -->
+        <section>
+            <section>
+                <h3>15. AI/ML in Security</h3>
+                <p>Anomaly detection, predictive analytics.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Simple anomaly detection with Python
+pip install scikit-learn
+python -c "from sklearn.ensemble import IsolationForest; print('Model ready')"
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"AI spots unusual patterns, like data exfiltration."</p>
+            </section>
+        </section>
+
+        <!-- Slide 17: MITRE ATT&CK Framework -->
+        <section>
+            <section>
+                <h3>16. MITRE ATT&CK Framework</h3>
+                <p>Threat modeling with adversary tactics.</p>
+                <div class="mermaid">
+                    flowchart TD
+                    A[T1078: Valid Accounts] --> B[T1040: Network Sniffing]
+                    B --> C[Data Breach]
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Map ATT&CK with log analysis
+sudo cat /var/log/auth.log | grep "failed"
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"MITRE helps us understand attack paths, like Target’s."</p>
+            </section>
+        </section>
+
+        <!-- Slide 18: TOGAF Framework -->
+        <section>
+            <section>
+                <h3>17. TOGAF Framework</h3>
+                <p>Enterprise architecture for security integration.</p>
+            </section>
+            <section>
+                <p class="prof-script">"TOGAF aligns security with business goals, ensuring scalability."</p>
+            </section>
+        </section>
+
+        <!-- Slide 19: SABSA Framework -->
+        <section>
+            <section>
+                <h3>18. SABSA Framework</h3>
+                <p>Risk-driven security design.</p>
+                <div class="mermaid">
+                    flowchart TD
+                    A[Risk Assessment] --> B[Controls]
+                    B --> C[Secure Network]
+                </div>
+            </section>
+            <section>
+                <p class="prof-script">"SABSA starts with risks, tailoring controls accordingly."</p>
+            </section>
+        </section>
+
+        <!-- Slide 20: Target Data Breach -->
+        <section>
+            <section>
+                <h3>19. Target Data Breach (2013)</h3>
+                <p>Vendor access led to POS malware, 40M cards stolen.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Attacker->>+Vendor: Steal Credentials
+                    Vendor->>+Target: Access Network
+                    Target-->>-Attacker: POS Compromise
+                </div>
+            </section>
+            <section>
+                <p class="prof-script">"Target’s lack of segmentation was key. Modern controls could’ve stopped
+                    this."</p>
+            </section>
+        </section>
+
+        <!-- Slide 21: Home Depot Breach -->
+        <section>
+            <section>
+                <h3>20. Home Depot Breach (2014)</h3>
+                <p>Vendor credentials, 56M cards stolen.</p>
+            </section>
+            <section>
+                <p class="prof-script">"Similar to Target, poor vendor security was the entry."</p>
+            </section>
+        </section>
+
+        <!-- Slide 22: Wendy’s Breach -->
+        <section>
+            <section>
+                <h3>21. Wendy’s Breach (2016)</h3>
+                <p>POS malware, 1,000+ locations affected.</p>
+            </section>
+            <section>
+                <p class="prof-script">"Distributed systems need centralized monitoring."</p>
+            </section>
+        </section>
+
+        <!-- Slide 23: Sally Beauty Breach -->
+        <section>
+            <section>
+                <h3>22. Sally Beauty Breach (2015)</h3>
+                <p>25,000 cards compromised via POS.</p>
+            </section>
+            <section>
+                <p class="prof-script">"Detection failed here; XDR could’ve caught it."</p>
+            </section>
+        </section>
+
+        <!-- Slide 24: Neiman Marcus Breach -->
+        <section>
+            <section>
+                <h3>23. Neiman Marcus Breach (2014)</h3>
+                <p>350,000 cards stolen via POS malware.</p>
+            </section>
+            <section>
+                <p class="prof-script">"Slow response worsened this; SOAR helps."</p>
+            </section>
+        </section>
+
+        <!-- Slide 25: Prevention with Modern Architecture -->
+        <section>
+            <section>
+                <h3>24. Prevention with Modern Architecture</h3>
+                <p>Segmentation, Zero Trust, XDR stop breaches.</p>
+                <div class="mermaid">
+                    flowchart TD
+                    A[Threat] --> B[Zero Trust]
+                    B --> C[XDR]
+                    C --> D[No Breach]
+                </div>
+            </section>
+            <section>
+                <p class="prof-script">"These controls block lateral movement and detect fast."</p>
+            </section>
+        </section>
+
+        <!-- Slide 26: Hands-on Firewall Setup -->
+        <section>
+            <section>
+                <h3>25. Hands-on: Firewall Setup</h3>
+                <p>Secure a Linux server with ufw.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Enable and configure ufw
+sudo apt install ufw -y
+sudo ufw allow 22
+sudo ufw enable
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Let’s secure SSH access now."</p>
+            </section>
+        </section>
+
+        <!-- Slide 27: Hands-on VLAN Setup -->
+        <section>
+            <section>
+                <h3>26. Hands-on: VLAN Setup</h3>
+                <p>Isolate networks with Docker.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Create and test VLAN
+docker network create --driver bridge vlan20
+docker run --rm -d --network vlan20 nginx
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"This isolates traffic, mimicking segmentation."</p>
+            </section>
+        </section>
+
+        <!-- Slide 28: Hands-on SSL/TLS -->
+        <section>
+            <section>
+                <h3>27. Hands-on: SSL/TLS Setup</h3>
+                <p>Secure a site with HTTPS.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Install and run Certbot
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d mydomain.com
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"HTTPS is critical for transport security."</p>
+            </section>
+        </section>
+
+        <!-- Slide 29: Hands-on Security Assessment -->
+        <section>
+            <section>
+                <h3>28. Hands-on: Security Assessment</h3>
+                <p>Audit with Lynis.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Install and run Lynis
+sudo apt install lynis -y
+sudo lynis audit system
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Assess your server’s security now."</p>
+            </section>
+        </section>
+
+        <!-- Slide 30: Conclusion and Q&A -->
+        <section>
+            <section>
+                <h3>29. Conclusion and Q&A</h3>
+                <p>Recap: OSI controls, modern tools, breach prevention.</p>
+            </section>
+            <section>
+                <p class="prof-script">"We’ve built a secure architecture. Any questions?"</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How can we stay ahead of new threats?<br>
+                        <strong>A:</strong> Use threat intelligence and continuous monitoring.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 30: Introduction to TCP/IP -->
+        <section>
+            <section>
+                <h3>30. Introduction to TCP/IP</h3>
+                <p>TCP/IP: Core protocol suite for internet communication, simpler than OSI.</p>
+                <div class="mermaid">
+                    flowchart TD
+                    A[Link Layer] --> B[Internet Layer]
+                    B --> C[Transport Layer]
+                    C --> D[Application Layer]
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Check TCP/IP stack on Linux
+netstat -tuln
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"TCP/IP drives the internet. It’s a 4-layer model we’ll dissect for
+                    security."</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How does TCP/IP differ from OSI?<br>
+                        <strong>A:</strong> TCP/IP is practical, with 4 layers vs. OSI’s theoretical 7.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 31: Link Layer in TCP/IP -->
+        <section>
+            <section>
+                <h3>31. Link Layer in TCP/IP</h3>
+                <p>Handles hardware addressing, Ethernet, ARP.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Host->>+Switch: ARP Request
+                    Switch-->>-Host: MAC Address
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# View ARP table on Linux
+arp -n
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Link layer maps IPs to MACs. ARP spoofing is a risk here."</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> What’s an ARP spoofing attack?<br>
+                        <strong>A:</strong> Faking MAC addresses to intercept traffic.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 32: Internet Layer in TCP/IP -->
+        <section>
+            <section>
+                <h3>32. Internet Layer in TCP/IP</h3>
+                <p>IP addressing, routing with IPv4/IPv6, ICMP.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Ping an IP on Linux
+ping -c 10 8.8.8.8
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Internet layer moves packets. ICMP can be abused for reconnaissance."</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why secure ICMP?<br>
+                        <strong>A:</strong> Prevents ping sweeps and DoS attacks.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 33: Transport Layer in TCP/IP -->
+        <section>
+            <section>
+                <h3>33. Transport Layer in TCP/IP</h3>
+                <p>TCP (reliable) vs. UDP (fast), port management.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Client->>+Server: TCP SYN
+                    Server-->>-Client: SYN-ACK
+                    Client->>Server: ACK
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Check open ports on Linux
+ss -tuln
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"TCP ensures delivery; UDP is lightweight. Both need securing."</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> When to use TCP vs. UDP?<br>
+                        <strong>A:</strong> TCP for reliability (e.g., HTTP), UDP for speed (e.g., streaming).</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 34: Application Layer in TCP/IP -->
+        <section>
+            <section>
+                <h3>34. Application Layer in TCP/IP</h3>
+                <p>Protocols like HTTP, FTP, DNS for user services.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Query DNS on MacOS/Linux
+dig google.com
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Application layer is user-facing, prone to exploits like DNS spoofing."</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How can DNS be attacked?<br>
+                        <strong>A:</strong> Spoofing or cache poisoning to redirect traffic.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 35: TCP/IP Security Challenges -->
+        <section>
+            <section>
+                <h3>35. TCP/IP Security Challenges</h3>
+                <p>Spoofing, sniffing, session hijacking.</p>
+                <div class="mermaid">
+                    flowchart TD
+                    A[Spoofing] --> B[Packet Injection]
+                    B --> C[Data Breach]
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Sniff packets on Linux
+sudo tcpdump -i eth0
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"TCP/IP wasn’t built for security. Sniffing’s easy without encryption."</p>
+            </section>
+        </section>
+
+        <!-- Slide 36: Securing TCP/IP with IPsec -->
+        <section>
+            <section>
+                <h3>36. Securing TCP/IP with IPsec</h3>
+                <p>Encrypts and authenticates IP packets.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    HostA->>+HostB: IPsec Tunnel
+                    HostB-->>-HostA: Encrypted Response
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Set up IPsec on Linux (strongSwan)
+sudo apt install strongswan -y
+sudo vi /etc/ipsec.conf
+# Add: conn my-vpn
+#      left=192.168.1.1
+#      right=192.168.1.2
+sudo systemctl restart strongswan-starter
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"IPsec adds a security layer to IP. Try this basic setup."</p>
+            </section>
+        </section>
+
+        <!-- Slide 37: TCP Handshake Security -->
+        <section>
+            <section>
+                <h3>37. TCP Handshake Security</h3>
+                <p>Three-way handshake: SYN, SYN-ACK, ACK.</p>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Client->>+Server: SYN
+                    Server-->>-Client: SYN-ACK
+                    Client->>Server: ACK
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Simulate handshake on Linux
+nc -l 12345 & nc localhost 12345
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Handshakes can be spoofed for SYN floods. Firewalls mitigate this."</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> What’s a SYN flood?<br>
+                        <strong>A:</strong> Overwhelming a server with fake SYN requests.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Slide 38: Hands-on: TCP Traffic Analysis -->
+        <section>
+            <section>
+                <h3>38. Hands-on: TCP Traffic Analysis</h3>
+                <p>Use Wireshark to analyze TCP packets.</p>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Install Wireshark on Linux
+sudo apt install wireshark -y
+sudo wireshark &
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Wireshark shows TCP in action. Capture some traffic now."</p>
+            </section>
+        </section>
+
+        <!-- Slide 39: TCP/IP in Modern Architecture -->
+        <section>
+            <section>
+                <h3>39. TCP/IP in Modern Architecture</h3>
+                <p>Integrates with Zero Trust, XDR for security.</p>
+                <div class="mermaid">
+                    flowchart TD
+                    A[TCP/IP] --> B[Zero Trust]
+                    B --> C[XDR]
+                    C --> D[Secure Network]
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Restrict TCP ports on AWS
+aws ec2 revoke-security-group-ingress --group-id sg-123 --protocol tcp --port 80 --cidr 0.0.0.0/0
+                </code></pre>
+            </section>
+            <section>
+                <p class="prof-script">"Modern tools enhance TCP/IP’s weak spots. Secure ports here."</p>
+            </section>
+        </section>
+
+        <!-- Slide 40: Conclusion and Q&A -->
+        <section>
+            <section>
+                <h3>40. Conclusion and Q&A</h3>
+                <p>TCP/IP secured with layered controls and modern tools.</p>
+            </section>
+            <section>
+                <p class="prof-script">"We’ve covered TCP/IP’s nuts and bolts. Questions?"</p>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How does TCP/IP fit into OSI security?<br>
+                        <strong>A:</strong> Maps to OSI layers, needing controls at each for full protection.</p>
+                </div>
+            </section>
+        </section>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.5.0/dist/mermaid.min.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        securityLevel: 'loose',
+        theme: 'forest',
+        flowchart: {curve: 'linear'}
+    });
+    Reveal.initialize();
+</script>
+</body>
+</html>

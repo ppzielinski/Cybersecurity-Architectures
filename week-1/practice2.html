@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Complete 30-Topic Cybersecurity Architecture</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/theme/simple.min.css" rel="stylesheet"/>
+    <style>
+        .code {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .qa {
+            border-left: 3px solid #2c3e50;
+            padding-left: 15px;
+            margin: 15px 0;
+        }
+
+        .prof-script {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+
+        <!-- Topic 1: UEFI Secure Boot -->
+        <section>
+            <section><h3>1. UEFI Secure Boot</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    UEFI->>+Shim: Verify Signature
+                    Shim->>+GRUB: Check Canonical Key
+                    GRUB->>+Kernel: Validate Red Hat Cert
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Check Secure Boot status
+sudo mokutil --sb-state
+# List enrolled keys
+sudo mokutil --list-enrolled
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"Secure Boot uses PKI to validate boot components. BlackLotus bypassed this in 2023 by exploiting
+                        revoked Microsoft keys still trusted by older shim versions (CVE-2023-2490)."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How could an attacker bypass Secure Boot even when enabled?<br>
+                        <strong>A:</strong> Use a vulnerable shim loader (CVE-2023-40547) or exploit key revocation
+                        gaps.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 2: TPM Key Sealing -->
+        <section>
+            <section><h3>2. TPM Key Sealing</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    OS->>+TPM: CreatePrimary (Owner)
+                    TPM-->>-OS: Handle
+                    OS->>+TPM: Create (PCR Policy)
+                    TPM-->>-OS: Sealed Key
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Seal secret to PCRs 0-7
+tpm2_createprimary -c primary.ctx
+echo "secret" | tpm2_create -C primary.ctx -u key.pub -r key.priv -i-
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"TPM key sealing binds keys to system state. The 2021 TPM-Fail attack extracted ECDSA keys via
+                        timing leaks during sealing (CVE-2020-15092)."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why can't PCR measurements prevent physical attacks?<br>
+                        <strong>A:</strong> Cold boot attacks bypass PCRs by freezing RAM to extract unsealed keys.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 3: LUKS Disk Decryption -->
+        <section>
+            <section><h3>3. LUKS Disk Decryption</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Bootloader->>+TPM: UnsealKey(PCRs)
+                    TPM-->>-Bootloader: AES Key
+                    Bootloader->>+Kernel: Decrypt /dev/sda2
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Add TPM-based decryption
+sudo systemd-cryptenroll --tpm2-device=auto /dev/sda2
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"LUKS2 with TPM binding uses PCR policies. EvilGnome rootkit modified initramfs to log
+                        passphrases despite TPM sealing (2020)."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How would you detect malicious initramfs?<br>
+                        <strong>A:</strong> Validate initrd hash against TPM PCR4 measurements.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 4: initramfs Backdoors -->
+        <section>
+            <section><h3>4. initramfs Backdoors</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Attacker->>+Initramfs: Inject Payload
+                    Initramfs->>+Network: Call Home
+                    Network-->>-Initramfs: Execute
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Modify initramfs
+sudo update-initramfs -uv -k all
+# Verify
+sudo lsinitramfs /boot/initrd.img-$(uname -r)
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"Initramfs runs before disk decryption. The 2022 Counterfeit initrd attack exploited GRUB's weak
+                        signature checks."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why doesn't TPM prevent this?<br>
+                        <strong>A:</strong> Malicious initramfs alters PCR4, causing TPM to refuse unsealing.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 5: systemd Privilege Escalation -->
+        <section>
+            <section><h3>5. systemd Privilege Escalation</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    User->>+systemd: polkit Request
+                    systemd->>+DBus: Check Permissions
+                    DBus-->>-systemd: False Authorization
+                    systemd->>+Root Shell: Execute
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Exploit CVE-2021-3560
+dbus-send --system --dest=org.freedesktop.Accounts --type=method_call \
+--print-reply /org/freedesktop/Accounts org.freedesktop.Accounts.CreateUser \
+string:exploit string:"Exploit User" int32:1
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"systemd's D-Bus integration enabled privilege escalation via race conditions. CVE-2021-3560
+                        allowed unauthenticated root access in RHEL 8."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why is PID 1 a high-value target?<br>
+                        <strong>A:</strong> systemd runs as root and manages critical services.</p>
+                </div>
+            </section>
+        </section>
+
+
+        <!-- Topic 6: Process States (Zombie/Daemon) -->
+        <section>
+            <section>
+                <h3>6. Process States (Zombie/Daemon)</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    flowchart LR
+                    A[fork()] --> B[Running]
+                    B --> C{Zombie}
+                    C --> D[Reaped]
+                    B --> E[Daemon]
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Create zombie process
+python3 -c 'import os; os.fork() or os._exit(0)'
+ps aux | grep 'Z'
+
+# List daemons
+systemctl list-units --type=service
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"Zombie processes retain PID metadata until reaped. The Dirty Pipe exploit (CVE-2022-0847) abused
+                        page cache inheritance between processes for root escalation."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why are zombie processes a security concern?<br>
+                        <strong>A:</strong> Prolonged zombies leak metadata; daemons with PID 1 access enable privilege
+                        escalation.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 7: Memory Allocation (Buddy/Slab) -->
+        <section>
+            <section>
+                <h3>7. Memory Allocation (Buddy/Slab)</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    flowchart TB
+                    A[Page Request] --> B{Size >= 4KB?}
+                    B -->|Yes| C[Buddy Allocator]
+                    B -->|No| D[Slab Allocator]
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# View buddy system fragmentation
+cat /proc/buddyinfo
+
+# Monitor slab usage
+sudo slabtop -o
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The buddy system manages page frames, while slab allocators handle kernel objects. Rowhammer
+                        (2014) exploited DRAM weaknesses to corrupt adjacent memory regions."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How do slab allocators introduce vulnerabilities?<br>
+                        <strong>A:</strong> Object reuse without proper sanitization enables use-after-free exploits.
+                    </p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 8: Page Cache Exploitation -->
+        <section>
+            <section>
+                <h3>8. Page Cache Exploitation</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Process->>+Page Cache: Read File
+                    Page Cache->>-Process: Serve Cached Data
+                    Process->>+Disk: Write-Back
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Force cache flush
+sync; echo 3 > /proc/sys/vm/drop_caches
+
+# Check cached files
+vmtouch -v /var/log/syslog
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"Page cache side-channels enabled the CacheWarp attack (2023), compromising AMD SEV-SNP VMs by
+                        manipulating encrypted memory."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why is page cache timing measurable?<br>
+                        <strong>A:</strong> Cached vs. uncached accesses have 100x+ latency differences, leaking access
+                        patterns.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 9: Network Stack (TCP/IP) -->
+        <section>
+            <section>
+                <h3>9. Network Stack (TCP/IP)</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Client->>+Server: SYN
+                    Server->>+Client: SYN-ACK
+                    Client->>+Server: ACK
+                    Note over Client,Server: Established
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Mitigate SYN floods
+sysctl -w net.ipv4.tcp_syncookies=1
+
+# Monitor connections
+ss -tunlp
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The 2016 Dyn attack used TCP SYN floods amplified by IoT botnets. Modern kernels employ SYN
+                        cookies and eBPF filters for mitigation."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why is TCP state tracking vulnerable?<br>
+                        <strong>A:</strong> State tables consume memory; spoofed SYNs exhaust resources (DoS).</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 10: TLS Handshake Vulnerabilities -->
+        <section>
+            <section>
+                <h3>10. TLS Handshake Vulnerabilities</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Client->>+Server: ClientHello
+                    Server->>+Client: ServerHello (CipherSuite)
+                    Client->>+Server: Finished
+                    Server->>+Client: Encrypted Data
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Test TLS 1.2
+openssl s_client -connect google.com:443 -tls1_2
+
+# Check cipher support
+nmap --script ssl-enum-ciphers -p 443 google.com
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The FREAK attack (CVE-2015-0204) forced RSA_EXPORT ciphers, enabling MITM decryption. Modern TLS
+                        1.3 removes legacy ciphers."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why do old ciphers persist in TLS?<br>
+                        <strong>A:</strong> Backward compatibility vs. security trade-off; attackers exploit downgrade
+                        attacks.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 11: DNS Cache Poisoning -->
+        <section>
+            <section>
+                <h3>11. DNS Cache Poisoning</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Client->>+Resolver: google.com A?
+                    Resolver->>+Root: .com NS
+                    Attacker->>+Resolver: Fake Response
+                    Resolver-->>-Client: 6.6.6.6
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Spoof DNS with scapy
+send(IP(dst="8.8.8.8")/UDP()/DNS(id=0x1337,qr=1,an=DNSRR(rrname="google.com",rdata="6.6.6.6"))
+
+# Flush local cache
+systemd-resolve --flush-caches
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The 2008 Kaminsky attack poisoned DNS caches by flooding forged responses before legitimate
+                        replies. DNSSEC adds cryptographic signing to prevent this."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why is UDP used for DNS?<br>
+                        <strong>A:</strong> Lower overhead than TCP, but lacks sequence numbers enabling spoofing.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 12: Browser Sandbox Escapes -->
+        <section>
+            <section>
+                <h3>12. Browser Sandbox Escapes</h3>
+                <div class="mermaid">
+                    flowchart LR
+                    A[Browser] --> B[Renderer Process]
+                    B --> C[seccomp]
+                    B --> D[Namespaces]
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Launch Chrome without sandbox
+google-chrome --no-sandbox
+
+# Audit seccomp filters
+grep -i seccomp /proc/$PID/status
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"Project Zero's 2021 exploit chain combined V8 JIT bugs with Linux kernel vulnerabilities
+                        (CVE-2021-22555) to escape Chrome's sandbox."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why are browser sandboxes imperfect?<br>
+                        <strong>A:</strong> Shared kernel resources (e.g., GPU drivers) enable cross-process attacks.
+                    </p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 13: QUIC Protocol Security -->
+        <section>
+            <section>
+                <h3>13. QUIC Protocol Security</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Client->>+Server: Initial (CRYPTO)
+                    Server->>+Client: Handshake (TLS 1.3)
+                    Client->>+Server: 1-RTT Data
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Capture QUIC traffic
+sudo tcpdump -ni eth0 'udp port 443'
+
+# Test with ngtcp2
+ngtcp2-client --quiet 127.0.0.1 4433
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"QUIC's encryption of headers prevents middlebox inspection but complicates DDoS mitigation.
+                        Cloudflare mitigated 3.1 Tbps QUIC floods in 2022."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why does QUIC use connection IDs?<br>
+                        <strong>A:</strong> For NAT rebinding, but predictable IDs enable hijacking (CVE-2021-38666).
+                    </p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 14: CPU Cache Timing Attacks -->
+        <section>
+            <section>
+                <h3>14. CPU Cache Timing Attacks</h3>
+                <div class="mermaid">
+                    flowchart LR
+                    A[Speculative Execution] --> B[Cache Load]
+                    B --> C[Timing Measurement]
+                    C --> D[Data Leak]
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Measure cache latency
+taskset -c 0 perf stat -e L1-dcache-loads,L1-dcache-load-misses sleep 1
+
+# Spectre PoC
+git clone https://github.com/google/security-research
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"Meltdown (CVE-2017-5754) and Spectre (CVE-2017-5753) exploited speculative execution to leak
+                        kernel memory via cache timing."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why are cache attacks hard to mitigate?<br>
+                        <strong>A:</strong> Hardware-level optimizations conflict with security; KPTI adds 5-30%
+                        overhead.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 15: Kernel Module Security -->
+        <section>
+            <section>
+                <h3>15. Kernel Module Security</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    User->>+modprobe: insmod evil.ko
+                    modprobe->>+Kernel: Load LKM
+                    Kernel-->>-User: CAP_SYS_MODULE required
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# List loaded modules
+lsmod
+
+# Prevent auto-loading
+echo "blacklist evil_mod" > /etc/modprobe.d/block.conf
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The 2019 SACK Panic (CVE-2019-11477) allowed remote kernel panics via crafted TCP SACK options
+                        in the kernel network stack."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why are kernel modules high-risk?<br>
+                        <strong>A:</strong> Execute in ring 0; vulnerabilities grant full system compromise.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- ========== TOPICS 16-29 ========== -->
+
+        <!-- Topic 16: SELinux/AppArmor Bypass -->
+        <section>
+            <section>
+                <h3>16. SELinux/AppArmor Bypass</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    sequenceDiagram
+                    Attacker->>+Policy: Crafted Request
+                    Policy-->>-Attacker: Denied
+                    Attacker->>+Kernel: Exploit Race Condition
+                    Kernel-->>-Attacker: Root Access
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Check SELinux denials
+sudo ausearch -m avc -ts recent
+# AppArmor status
+sudo apparmor_status
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"CVE-2021-3560 (Polkit) exploited D-Bus race conditions to bypass SELinux policies. Modern
+                        systems use atomic policy checks to mitigate."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why don't MAC systems prevent all exploits?<br>
+                        <strong>A:</strong> Kernel-level vulnerabilities can bypass userspace policies.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 17: Firewall Rule Manipulation -->
+        <section>
+            <section>
+                <h3>17. Firewall Rule Manipulation</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    flowchart TB
+                    A[Attacker] --> B{root?}
+                    B -->|Yes| C[Modify nftables]
+                    B -->|No| D[Exploit setuid]
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# List firewall rules
+sudo nft list ruleset
+# Detect changes
+sudo auditctl -w /etc/nftables.conf -p war
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The 2021 MikroTik exploit (CVE-2018-14847) allowed firewall rule injection via vulnerable
+                        management interfaces."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> How to secure rule updates?<br>
+                        <strong>A:</strong> Use signed rule files with atomic reload (nft -f -).</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 18: Log File Tampering -->
+        <section>
+            <section>
+                <h3>18. Log File Tampering</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    sequenceDiagram
+                    Attacker->>+Journald: Corrupt Files
+                    Journald-->>-Attacker: Partial Access
+                    Attacker->>+Kernel: Direct /dev/kmsg
+                    Kernel-->>-Attacker: Log Injection
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Make logs append-only
+sudo chattr +a /var/log/*.log
+# Verify log integrity
+sudo journalctl --verify
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The 2022 XZ Utils backdoor attempted to hide malicious activity via log sanitization."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why isn't filesystem ACL sufficient?<br>
+                        <strong>A:</strong> Kernel exploits can bypass filesystem protections (e.g., CVE-2022-0847).</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 19: Journald Exploitation -->
+        <section>
+            <section>
+                <h3>19. Journald Exploitation</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    flowchart LR
+                    A[PID Spoofing] --> B[False Attribution]
+                    C[Memory Exhaustion] --> D[DoS]
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Limit journal size
+sudo journalctl --vacuum-size=100M
+# Detect PID reuse
+sudo auditctl -a always,exit -F arch=b64 -S execve
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"CVE-2018-16864 allowed journald memory exhaustion via large log messages. Modern systemd uses
+                        size limits."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why is PID tracking insufficient?<br>
+                        <strong>A:</strong> PID recycling enables log spoofing between processes.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 20: tmpfs Security -->
+        <section>
+            <section>
+                <h3>20. tmpfs Security</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    sequenceDiagram
+                    Container->>+Host: Mount tmpfs
+                    Host-->>-Container: Shared Memory
+                    Container->>+Host: Exploit fd Leak
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Secure tmpfs mounts
+sudo mount -t tmpfs -o size=512M,nosuid,nodev tmpfs /mnt
+# Check open files
+sudo lsof +D /dev/shm
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The 2022 CVE-2022-0492 container breakout exploited tmpfs cgroups permissions."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why tmpfs is risky in containers?<br>
+                        <strong>A:</strong> Shared kernel mounts enable cross-container attacks.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 21: USB Device Trust -->
+        <section>
+            <section>
+                <h3>21. USB Device Trust</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    flowchart TB
+                    A[BadUSB] --> B[Fake HID]
+                    A --> C[Malicious Firmware]
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Block USB storage
+echo 'install usb-storage /bin/false' | sudo tee /etc/modprobe.d/block-usb.conf
+# Monitor devices
+sudo usbguard generate-policy > rules.conf
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The 2014 BadUSB attack showed USB firmware could be reprogrammed for persistent malware
+                        delivery."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why can't antivirus detect this?<br>
+                        <strong>A:</strong> Firmware resides in controller ROM, invisible to OS.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 22: GPU DMA Attacks -->
+        <section>
+            <section>
+                <h3>22. GPU DMA Attacks</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    sequenceDiagram
+                    GPU->>+CPU: DMA Request
+                    CPU-->>-GPU: Memory Access
+                    GPU->>+Network: Exfiltrate Data
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Secure DMA
+sudo iommu=pt intel_iommu=on
+# Check IOMMU groups
+lspci -vv -s 00:01.0
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The 2018 Checkm8 exploit used GPU DMA to bypass iOS secure boot."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why is IOMMU insufficient?<br>
+                        <strong>A:</strong> Many consumer PCs disable IOMMU by default.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 23: BIOS Reprogramming -->
+        <section>
+            <section>
+                <h3>23. BIOS Reprogramming</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    flowchart LR
+                    A[SPI Flash] --> B[UEFI Update]
+                    C[Physical Access] --> D[Clip-on Programmer]
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Verify BIOS signature
+sudo flashrom -p internal:laptop=force_I_want_a_brick -r bios.bin
+# Check TPM PCR0
+tpm2_pcrread sha256:0
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The 2015 Thunderstrike attack installed persistent MacBook firmware malware via
+                        Thunderbolt."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why aren't BIOS chips write-protected?<br>
+                        <strong>A:</strong> Legitimate updates require rewritable firmware.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 24: Secure Boot Bypass -->
+        <section>
+            <section>
+                <h3>24. Secure Boot Bypass</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    sequenceDiagram
+                    Attacker->>+Shim: Exploit Vulnerability
+                    Shim->>+GRUB: Load Unsigned
+                    GRUB->>+Kernel: Bypass Validation
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Check boot chain
+sudo sbverify --cert MSKEK.der /boot/efi/EFI/ubuntu/shimx64.efi
+# Verify kernel
+pesign -S -i /boot/vmlinuz-$(uname -r)
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"BootHole (CVE-2020-10713) exploited GRUB config file parsing to bypass Secure Boot."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why are bootloaders vulnerable?<br>
+                        <strong>A:</strong> Complex parsers (e.g., GRUB's shim) have large attack surfaces.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 25: Kernel Same-Page Merging -->
+        <section>
+            <section>
+                <h3>25. Kernel Same-Page Merging</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    flowchart TB
+                    A[Page 1] --> C[Merged Page]
+                    B[Page 2] --> C
+                    C --> D[Spectre Leak]
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Disable KSM
+echo 0 | sudo tee /sys/kernel/mm/ksm/run
+# Check KSM stats
+sudo grep -H '' /sys/kernel/mm/ksm/*
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"KSM enables cross-VM attacks via shared memory deduplication. Disable in multi-tenant
+                        environments."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why doesn't encryption prevent this?<br>
+                        <strong>A:</strong> KSM operates on plaintext pages pre-encryption.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 26: eBPF Security -->
+        <section>
+            <section>
+                <h3>26. eBPF Security</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    sequenceDiagram
+                    User->>+Verifier: Load Program
+                    Verifier-->>-User: Reject
+                    User->>+Kernel: Exploit Verifier
+                    Kernel-->>-User: Root Access
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# List BPF programs
+sudo bpftool prog show
+# Restrict BPF
+sysctl -w kernel.unprivileged_bpf_disabled=1
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"CVE-2021-31440 allowed unprivileged eBPF programs to escape verifier checks in Linux <5.11."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why is eBPF dangerous?<br>
+                        <strong>A:</strong> Kernel-level code execution with verifier bypasses.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 27: Container Breakouts -->
+        <section>
+            <section>
+                <h3>27. Container Breakouts</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    flowchart TB
+                    A[CAP_SYS_ADMIN] --> B[Mount /]
+                    C[Unpatched runc] --> D[Host Access]
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Check container caps
+docker inspect --format '{{.HostConfig.CapAdd}}' container
+# Update runc
+sudo apt-get install runc --only-upgrade
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"CVE-2019-5736 (runc) allowed container escapes via /proc/self/exe overwrite."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why namespaces aren't enough?<br>
+                        <strong>A:</strong> Kernel vulnerabilities (e.g., Dirty Pipe) bypass namespace isolation.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 28: SSH Key Management -->
+        <section>
+            <section>
+                <h3>28. SSH Key Management</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    sequenceDiagram
+                    Client->>+Server: SSH-RSA Key
+                    Server->>+CA: Validate Cert
+                    CA-->>-Server: Expired
+                    Server-->>-Client: Access Denied
+                </div>
+            </section>
+            <section>
+        <pre class="code"><code>
+# Use ED25519 keys
+ssh-keygen -t ed25519 -a 100
+# Check key expiration
+ssh-keygen -Lf ~/.ssh/id_ed25519-cert.pub
+        </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"The 2020 OpenSSH CVE-2020-15778 allowed command injection via scp's shell forwarding."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why avoid RSA keys?<br>
+                        <strong>A:</strong> Shorter keys vulnerable to quantum attacks; ED25519 preferred.</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 29: Password Cracking (RAM) -->
+        <section>
+            <section>
+                <h3>29. Password Cracking (RAM)</h3>
+                <div class="mermaid">
+                    %%{init: {'securityLevel': 'loose'} }%%
+                    flowchart LR
+                    A[Freeze RAM] --> B[Image Capture]
+                    B --> C[Search Keys]
+                    C --> D[Decrypt Disk]
+                </div>
+            </section>
+        </section>
+
+        <!-- Topic 30: Firmware Update Attacks -->
+        <section>
+            <section><h3>30. Firmware Update Attacks</h3>
+                <div class="mermaid">
+                    sequenceDiagram
+                    Attacker->>+BMC: Fake Update
+                    BMC->>+BIOS: Flash Malware
+                    BIOS-->>-OS: Compromised
+                </div>
+            </section>
+            <section>
+                <pre class="code"><code>
+# Verify firmware
+sudo fwupdmgr verify
+# Check updates
+sudo fwupdmgr get-updates
+                </code></pre>
+            </section>
+            <section>
+                <div class="prof-script">
+                    <p>"Firmware updates lack certificate revocation. DarkSide targeted BMCs in 2021 to deploy implants
+                        (CVE-2021-36274)."</p>
+                </div>
+            </section>
+            <section>
+                <div class="qa">
+                    <p><strong>Q:</strong> Why are firmware updates riskier than OS patches?<br>
+                        <strong>A:</strong> No standardized revocation; hardware write-protection often disabled.</p>
+                </div>
+            </section>
+        </section>
+
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.5.0/dist/mermaid.min.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        securityLevel: 'loose',
+        theme: 'forest',
+        flowchart: {curve: 'linear'}
+    });
+    Reveal.initialize();
+</script>
+</body>
+
+
+</html>

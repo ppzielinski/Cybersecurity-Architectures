@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Network Security Architecture Deep Dive</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/theme/simple.min.css" rel="stylesheet"/>
+    <style>
+        .code {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .qa {
+            border-left: 3px solid #2c3e50;
+            padding-left: 15px;
+            margin: 15px 0;
+        }
+
+        .prof-script {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section data-markdown>
+            <textarea data-template>
+
+
+## Chapter 1: Anatomy of the Target Breach & AWS Context
+
+---
+
+### **1.1 Attack Timeline & Technical Analysis**
+
+**Attack Flow (Mapped to TTPs & AWS Relevance):**
+The Target breach (2013) predates many modern AWS services but serves as a crucial case study for control failures addressable in the cloud.
+
+```mermaid
+sequenceDiagram
+    participant A as Attacker
+    participant V as HVAC Vendor System (Simulated On-Prem/Legacy)
+    participant TGW as Hypothetical Transit Gateway/On-Prem Link
+    participant TargetVPC as Target Main VPC (Simulated Legacy Flat Network)
+    participant POS_EC2 as POS System (Simulated EC2 Instance)
+    participant StagingSrv as Staging Server (Simulated EC2 Instance)
+    participant C2 as External C2 Server
+
+    Note over A,V: Initial Access Phase
+    A->>V: Phishing Email (T1566.002)
+    V-->>A: Compromised Vendor Credentials (T1078)
+    A->>TGW: VPN/DirectConnect using Stolen Creds (T1133/T1078)
+    TGW-->>TargetVPC: Access Granted (Lack of MFA/ZTNA)
+
+    Note over TargetVPC: Lateral Movement & Collection
+    A->>TargetVPC: Network Service Scanning (T1046)
+    TargetVPC-->>A: Discover POS Subnet/IPs (Lack of Segmentation)
+    A->>POS_EC2: Exploit SMB Vuln / Deploy RAM Scraper (T1210 / T1055 / T1005)
+    POS_EC2-->>StagingSrv: Transfer Stolen Card Data (T1074.001)
+
+    Note over StagingSrv,C2: Exfiltration Phase
+    StagingSrv->>C2: Exfiltrate via Allowed Protocol (e.g., HTTP/DNS) (T1041 / T1071 / T1048)
+```
+
+**Key Technical Failures & AWS Parallels:**
+* **Insufficient Vendor Access Control:** Lack of MFA, static credentials. *AWS Context:* Modern approach uses AWS IAM Identity Center (SSO) with MFA, short-lived sessions, potentially AWS Verified Access or ZTNA solutions.
+* **Flat Network Architecture:** Allowed easy lateral movement from vendor segment to POS segment. *AWS Context:* VPCs with Security Groups, NACLs, micro-segmentation patterns (Transit Gateway, VPC Peering with strict routing/SGs), and services like VPC Lattice prevent this.
+* **Missing Egress Controls:** Exfiltration using common protocols (HTTP, DNS) went undetected. *AWS Context:* AWS Network Firewall, Route 53 Resolver DNS Firewall, VPC Flow Logs + GuardDuty provide egress monitoring and control.
+* **Inadequate Endpoint Security:** RAM-scraping malware was not detected on POS systems. *AWS Context:* Amazon Inspector for vulnerabilities, SSM Patch Manager for patching, GuardDuty Runtime Monitoring (EC2/EKS), and third-party EDR integrations provide endpoint visibility.
+* **Lack of Centralized Logging/Monitoring:** Delayed detection of scanning, malware deployment, and exfiltration. *AWS Context:* Centralized CloudTrail, CloudWatch Logs, Config Logs (via Control Tower Log Archive), Security Hub findings, and GuardDuty detections enable faster identification.
+
+---
+
+      </section>
+         </div>
+            </textarea></section>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/plugin/markdown/markdown.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.5.0/dist/mermaid.min.js"></script>
+<script> mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'forest',
+    flowchart: {curve: 'linear'}
+});
+Reveal.initialize({
+    plugins: [RevealMarkdown],
+    dependencies: [{
+        src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/plugin/highlight/highlight.min.js',
+        async: true
+    }]
+}).then(() => {
+    const mermaidCodes = document.querySelectorAll('code.language-mermaid');
+    mermaidCodes.forEach(code => {
+        const container = document.createElement('div');
+        container.className = 'mermaid';
+        container.textContent = code.textContent;
+        code.parentNode.replaceChild(container, code);
+    });
+    mermaid.init();
+}); </script>
+</body>
+</html>

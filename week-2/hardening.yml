@@ -1,0 +1,291 @@
+---
+- name: Apply Lynis Hardening Recommendations
+  hosts: all
+  become: yes
+
+  tasks:
+    # Update package cache
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    # Install recommended security and audit packages (from Lynis suggestions)
+    - name: Install recommended security packages
+      apt:
+        name:
+          - libpam-tmpdir            # Per-user temp directories for security&#8203;:contentReference[oaicite:1]{index=1}
+          - apt-listchanges          # Show changelogs before apt upgrades&#8203;:contentReference[oaicite:3]{index=3}
+          - auditd                   # Audit daemon for system auditing&#8203;:contentReference[oaicite:4]{index=4}
+          - rkhunter                 # Rootkit hunter for malware scanning
+          - fail2ban                 # Auto-ban on multiple auth failures&#8203;:contentReference[oaicite:5]{index=5}
+          - libpam-pwquality         # PAM module for password strength (replacement for cracklib)
+          - debsums                  # Tool to verify integrity of installed packages&#8203;:contentReference[oaicite:6]{index=6}
+          - apt-show-versions        # Lists available package updates&#8203;:contentReference[oaicite:7]{index=7}
+          - acct                     # Process accounting (psacct)&#8203;:contentReference[oaicite:8]{index=8}
+          - sysstat                  # System statistics collection (sar)&#8203;:contentReference[oaicite:9]{index=9}
+          - aide                     # File integrity monitoring tool&#8203;:contentReference[oaicite:10]{index=10}
+        state: present
+        install_recommends: no
+
+    # Ensure critical services are running and enabled
+    - name: Ensure auditd service is running
+      service:
+        name: auditd
+        state: started
+        enabled: yes
+
+    - name: Ensure fail2ban service is running
+      service:
+        name: fail2ban
+        state: started
+        enabled: yes
+
+    - name: Enable process accounting (acct)
+      service:
+        name: acct
+        state: started
+        enabled: yes
+
+    # Enable sysstat data collection (disabled by default on Ubuntu)
+    - name: Enable sysstat data collection
+      lineinfile:
+        dest: /etc/default/sysstat
+        regexp: '^ENABLED=.*'
+        line: 'ENABLED="true"'
+      notify: Restart sysstat
+
+    - name: Start sysstat service
+      service:
+        name: sysstat
+        state: started
+        enabled: yes
+
+    # PAM configuration: libpam-tmpdir for secure /tmp and libpam-pwquality for password strength
+    - name: Configure PAM for per-user temp directories (libpam-tmpdir)
+      block:
+        - lineinfile:
+            dest: /etc/pam.d/common-session
+            regexp: '^session\s+optional\s+pam_tmpdir.so'
+            line: 'session optional pam_tmpdir.so'
+            state: present
+        - lineinfile:
+            dest: /etc/pam.d/common-session-noninteractive
+            regexp: '^session\s+optional\s+pam_tmpdir.so'
+            line: 'session optional pam_tmpdir.so'
+            state: present
+      tags: [pam]
+
+    - name: Configure PAM for password quality (libpam-pwquality)
+      block:
+        # Replace any pam_cracklib line with pam_pwquality (if present)
+        - replace:
+            dest: /etc/pam.d/common-password
+            regexp: '^password\s+requisite\s+pam_cracklib.so.*'
+            replace: 'password requisite pam_pwquality.so retry=3 minlen=12 difok=3'
+        # Ensure pam_pwquality is enforced in PAM password stack
+        - lineinfile:
+            dest: /etc/pam.d/common-password
+            regexp: '^password\s+requisite\s+pam_pwquality.so'
+            line: 'password requisite pam_pwquality.so retry=3 minlen=12 difok=3'
+            insertbefore: '^password\s+\[success=1'
+      tags: [pam]
+
+    # Password hashing and aging policies
+    #- name: Set password hashing method to SHA-512
+    #  lineinfile:
+    #    dest: /etc/login.defs
+    #    regexp: '^ENCRYPT_METHOD'
+    #    line: 'ENCRYPT_METHOD SHA512'
+    #  state: present
+
+    - name: Configure password hashing rounds
+      block:
+        - lineinfile:
+            dest: /etc/login.defs
+            regexp: '^SHA_CRYPT_MIN_ROUNDS'
+            line: 'SHA_CRYPT_MIN_ROUNDS 5000'
+        - lineinfile:
+            dest: /etc/login.defs
+            regexp: '^SHA_CRYPT_MAX_ROUNDS'
+            line: 'SHA_CRYPT_MAX_ROUNDS 50000'
+
+    - name: Set password aging policies
+      block:
+        - lineinfile:
+            dest: /etc/login.defs
+            regexp: '^PASS_MAX_DAYS'
+            line: 'PASS_MAX_DAYS   90'      # Maximum days until password must be changed&#8203;:contentReference[oaicite:11]{index=11}
+        - lineinfile:
+            dest: /etc/login.defs
+            regexp: '^PASS_MIN_DAYS'
+            line: 'PASS_MIN_DAYS   7'       # Minimum days between password changes&#8203;:contentReference[oaicite:12]{index=12}
+        - lineinfile:
+            dest: /etc/login.defs
+            regexp: '^PASS_WARN_AGE'
+            line: 'PASS_WARN_AGE   7'       # Days before expiry to warn user
+      tags: [auth]
+
+    - name: Set default umask for users
+      lineinfile:
+        dest: /etc/login.defs
+        regexp: '^UMASK'
+        line: 'UMASK 027'                  # Tighten default umask (was 022)&#8203;:contentReference[oaicite:13]{index=13}
+
+    # SSH server hardening (sshd_config adjustments)
+    - name: Harden SSH configuration
+      block:
+        - lineinfile:
+            dest: /etc/ssh/sshd_config
+            regexp: '^#?ClientAliveInterval'
+            line: 'ClientAliveInterval 300'
+        - lineinfile:
+            dest: /etc/ssh/sshd_config
+            regexp: '^#?ClientAliveCountMax'
+            line: 'ClientAliveCountMax 2'
+        - lineinfile:
+            dest: /etc/ssh/sshd_config
+            regexp: '^#?MaxAuthTries'
+            line: 'MaxAuthTries 4'
+        - lineinfile:
+            dest: /etc/ssh/sshd_config
+            regexp: '^#?LogLevel'
+            line: 'LogLevel VERBOSE'
+        - lineinfile:
+            dest: /etc/ssh/sshd_config
+            regexp: '^#?TCPKeepAlive'
+            line: 'TCPKeepAlive yes'
+        - lineinfile:
+            dest: /etc/ssh/sshd_config
+            regexp: '^#?PermitRootLogin'
+            line: 'PermitRootLogin no'
+        - lineinfile:
+            dest: /etc/ssh/sshd_config
+            regexp: '^#?X11Forwarding'
+            line: 'X11Forwarding no'
+        - lineinfile:
+            dest: /etc/ssh/sshd_config
+            regexp: '^#?PermitEmptyPasswords'
+            line: 'PermitEmptyPasswords no'
+        - lineinfile:
+            dest: /etc/ssh/sshd_config
+            regexp: '^#?Banner'
+            line: 'Banner /etc/issue.net'
+        - name: Restart SSH to apply changes
+          service:
+            name: ssh
+            state: restarted
+
+    # Kernel parameters (sysctl) for network and memory hardening&#8203;:contentReference[oaicite:14]{index=14}
+    - name: Apply kernel sysctl hardening
+      sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+      loop:
+        - { key: 'net.ipv4.conf.all.accept_redirects',       value: '0' }
+        - { key: 'net.ipv4.conf.default.accept_redirects',   value: '0' }
+        - { key: 'net.ipv6.conf.all.accept_redirects',       value: '0' }
+        - { key: 'net.ipv6.conf.default.accept_redirects',   value: '0' }
+        - { key: 'net.ipv4.conf.all.send_redirects',         value: '0' }
+        - { key: 'net.ipv4.conf.default.send_redirects',     value: '0' }
+        - { key: 'net.ipv4.conf.all.accept_source_route',    value: '0' }
+        - { key: 'net.ipv4.conf.default.accept_source_route',value: '0' }
+        - { key: 'net.ipv6.conf.all.accept_source_route',    value: '0' }
+        - { key: 'net.ipv6.conf.default.accept_source_route',value: '0' }
+        - { key: 'net.ipv4.conf.all.secure_redirects',       value: '0' }
+        - { key: 'net.ipv4.conf.default.secure_redirects',   value: '0' }
+        - { key: 'net.ipv4.conf.all.log_martians',           value: '1' }
+        - { key: 'net.ipv4.icmp_echo_ignore_broadcasts',     value: '1' }
+        - { key: 'net.ipv4.icmp_ignore_bogus_error_responses', value: '1' }
+        - { key: 'net.ipv4.tcp_syncookies',                  value: '1' }
+        - { key: 'net.ipv4.conf.all.rp_filter',              value: '1' }
+        - { key: 'net.ipv4.conf.default.rp_filter',          value: '1' }
+        - { key: 'net.ipv4.tcp_timestamps',                  value: '0' }
+        - { key: 'fs.suid_dumpable',                        value: '0' }
+        - { key: 'kernel.randomize_va_space',               value: '2' }
+        - { key: 'kernel.sysrq',                            value: '0' }
+        - { key: 'kernel.kptr_restrict',                    value: '1' }
+        - { key: 'kernel.dmesg_restrict',                   value: '1' }
+        - { key: 'fs.protected_hardlinks',                  value: '1' }
+        - { key: 'fs.protected_symlinks',                   value: '1' }
+        - { key: 'kernel.panic',                            value: '10' }
+        - { key: 'kernel.panic_on_oops',                    value: '1' }
+        - { key: 'vm.mmap_min_addr',                        value: '65536' }
+
+    # Blacklist (disable) uncommon or unneeded kernel modules/protocols&#8203;:contentReference[oaicite:15]{index=15}
+    - name: Disable unnecessary kernel modules
+      copy:
+        dest: /etc/modprobe.d/disable-uncommon-protocols.conf
+        content: |
+          # Blacklist uncommon network protocols
+          install dccp /bin/true
+          install sctp /bin/true
+          install rds  /bin/true
+          install tipc /bin/true
+          install usb-storage /bin/true
+        owner: root
+        group: root
+        mode: '0644'
+
+    # Legal banners for console and SSH logins&#8203;:contentReference[oaicite:16]{index=16}
+    - name: Create warning banner for local login (/etc/issue)
+      copy:
+        dest: /etc/issue
+        content: |
+          ******************************************************************
+          **  WARNING: Unauthorized access to this system is prohibited.  **
+          **  All activities are monitored and logged.                   **
+          **  Disconnect IMMEDIATELY if you are not an authorized user.  **
+          ******************************************************************
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Create warning banner for remote login (/etc/issue.net)
+      copy:
+        dest: /etc/issue.net
+        content: |
+          ******************************************************************
+          **  WARNING: Unauthorized access to this system is prohibited.  **
+          **  All activities are monitored and logged.                   **
+          **  Disconnect IMMEDIATELY if you are not an authorized user.  **
+          ******************************************************************
+        owner: root
+        group: root
+        mode: '0644'
+
+    # (Optional) Configure remote syslog forwarding (no actual host given here)
+    - name: Configure rsyslog for remote logging (optional)
+      lineinfile:
+        dest: /etc/rsyslog.d/50-default.conf
+        insertafter: EOF
+        line: '# *.* @@logserver.example.com:514'
+      notify: Restart rsyslog
+      # (Uncomment and set a real log server if you have one. This line is commented in config by default.)
+
+    - name: Disable core dumps for all users
+      lineinfile:
+        dest: /etc/security/limits.conf
+        insertafter: EOF
+        line: '* hard core 0'   # Prevent users from generating core dump files&#8203;:contentReference[oaicite:17]{index=17}
+
+
+    # --- Manual steps / not fully automated ---
+    # - **Partitioning:** Ensure /home, /tmp, /var are on separate partitions for space and security isolation&#8203;:contentReference[oaicite:18]{index=18} (plan at installation time).
+    # - **GRUB Bootloader:** Set a GRUB password to prevent boot modifications&#8203;:contentReference[oaicite:19]{index=19}. (See notes below on how to configure this.)
+    # - **Deleted Logs Check:** Regularly check for deleted-but-open log files (e.g. via `lsof | grep "(deleted)"`) to detect tampering.
+    # - **Fail2Ban:** Adjust jail settings in /etc/fail2ban/jail.local as needed (e.g. enable the `[sshd]` jail and set bantime, findtime, maxretry).
+    # - **Reboot:** A reboot is recommended after running this playbook to ensure kernel parameters and module blacklisting take full effect.
+
+  handlers:
+    - name: Restart sysstat
+      service:
+        name: sysstat
+        state: restarted
+
+    - name: Restart rsyslog
+      service:
+        name: rsyslog
+        state: restarted
