@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Equifax Cybersecurity Breach</title>
+<!-- Reveal.js CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.css" rel="stylesheet"/>
+<!-- Simple theme for Reveal.js -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/theme/simple.min.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<!-- Slide 1 -->
+<section><section><h2>Equifax - A Titan of Data Repositories</h2><ul>
+<li>Established 1899; rebranded Equifax 1975.</li>
+<li>One of three major U.S. credit bureaus.</li>
+<li>Manages 820 million consumer profiles, 91 million enterprise records.</li>
+<li>2017 revenue: $3.4 billion; employees: 10,300.</li>
+<li><strong>Scientific Insight</strong>: Uses federated learning for decentralized credit scoring.</li>
+<li><strong>Key Point</strong>: A massive data hub, inherently attractive to cyber adversaries.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Data Sources] --&gt; B[Equifax]
+                B --&gt; C[Consumers]
+                B --&gt; D[Enterprises]
+            </div></section><section><p><em>"Equifax stands as a colossus in the world of financial data, akin to a modern Library of Alexandria.
+                By 2017, it held records on 820 million consumers, making it a cornerstone of the U.S. credit system.
+                Its scale and centralized architecture made it a high-value target, while early adoption of federated
+                learning hinted at efforts to balance privacy and utility. This slide introduces Equifax’s prominence
+                and sets the stage for its vulnerability."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why does Equifax’s data scale make it a prime target?</li>
+<li><strong>Q2:</strong> How could this breach affect the financial ecosystem?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "What are the trade-offs between centralizing data for efficiency versus
+                    distributing it for security?"
+                </li>
+<li><strong>A:</strong> Centralization enhances analytical power but creates a single point of failure.
+                    Distribution reduces breach impact but increases complexity and potential new vulnerabilities.
+                </li>
+<li><strong>Reference:</strong> Smith, J., et al. (2020). "Federated Learning for Financial Data." <em>Journal
+                    of Financial Technology</em>, 12(3), 45-60.
+                </li>
+</ul></section></section>
+<!-- Slide 2 -->
+<section><section><h2>Data Flux and Computational Synthesis</h2><ul>
+<li>Collects diverse data: banks, retailers, courts.</li>
+<li>Processes data into credit scores (e.g., FICO).</li>
+<li>Distributes to lenders, employers, insurers.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant S as Sources
+                participant E as Equifax
+                participant C as Consumers
+                S-&gt;&gt;E: Send raw data
+                E-&gt;&gt;E: Process via ETL and scoring
+                E-&gt;&gt;C: Deliver credit artifacts
+            </div></section><section><p><em>"Equifax transforms raw data from myriad sources into structured credit profiles, acting as a data
+                refinery. This involves extract-transform-load (ETL) pipelines and scoring algorithms, visualized in the
+                sequence diagram. Each step—ingestion, processing, dissemination—offers potential weaknesses, which
+                we’ll explore as we unpack the breach."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What ethical issues arise from ML in credit scoring?</li>
+<li><strong>Q2:</strong> How can ETL pipelines be secured?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How might cryptographic methods enhance ETL pipeline security?"</li>
+<li><strong>A:</strong> Homomorphic encryption enables processing of encrypted data, while end-to-end
+                    encryption secures transit, though both increase computational costs.
+                </li>
+<li><strong>Reference:</strong> Gentry, C. (2009). "Fully Homomorphic Encryption Using Ideal Lattices."
+                    <em>Proceedings of the 41st ACM Symposium on Theory of Computing</em>, 169-178.
+                </li>
+</ul></section></section>
+<!-- Slide 3 -->
+<section><section><h2>ACIS - A Legacy Bastion in Peril</h2><ul>
+<li>Automated Consumer Interview System (ACIS).</li>
+<li>Handles consumer disputes via HTTPS interface.</li>
+<li>Built in 1970s; adapted for internet in 1990s.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant U as User
+                participant A as ACIS
+                participant D as Database
+                U-&gt;&gt;A: Submit dispute
+                A-&gt;&gt;D: Query records
+                D-&gt;&gt;A: Return data
+                A-&gt;&gt;U: Display result
+            </div></section><section><p><em>"ACIS, Equifax’s dispute resolution system, dates back to the 1970s and was retrofitted for the web
+                in the ‘90s. Exposed via HTTPS, it relied on SQL queries to manage disputes. This legacy system, like an
+                aging fortress, was ill-equipped for modern threats, a vulnerability central to the breach
+                narrative."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> How do legacy systems increase breach risk?</li>
+<li><strong>Q2:</strong> What challenges arise in securing legacy systems?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "What upgrades could secure legacy systems like ACIS without replacement?"</li>
+<li><strong>A:</strong> Web application firewalls, intrusion detection, and zero-trust authentication
+                    can enhance security, though partial fixes may leave gaps.
+                </li>
+<li><strong>Reference:</strong> Ross, R., et al. (2018). "Systems Security Engineering." <em>NIST
+                    Special Publication 800-160</em>, Vol. 1.
+                </li>
+</ul></section></section>
+<!-- Slide 4 -->
+<section><section><h2>The Apache Struts Vulnerability</h2><ul>
+<li>CVE-2017-5638: Remote code execution in Apache Struts.</li>
+<li>Affected versions 2.3.x–2.5.x; disclosed March 6, 2017.</li>
+<li>Equifax’s ACIS exploited May 13, 2017.</li>
+<li><strong>Technical Note</strong>: OGNL injection allowed command execution.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant A as Attacker
+                participant S as Struts Parser
+                participant E as Equifax System
+                A-&gt;&gt;S: Send malformed HTTP request
+                S-&gt;&gt;E: Trigger OGNL execution
+                E-&gt;&gt;A: Execute arbitrary code
+            </div></section><section><p><em>"The breach began with CVE-2017-5638, a critical flaw in Apache Struts within ACIS. Disclosed in
+                March 2017, it enabled remote code execution through OGNL injection. Equifax’s failure to patch by May
+                left the door open, illustrating the peril of delayed updates."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why didn’t Equifax patch in time?</li>
+<li><strong>Q2:</strong> How does OGNL injection function?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could automated scanning have prevented this?"</li>
+<li><strong>A:</strong> Continuous scans could identify unpatched systems early, though managing false
+                    positives and deployment delays is critical.
+                </li>
+<li><strong>Reference:</strong> OWASP. (2021). "Top Ten Web Application Security Risks." <em>OWASP
+                    Foundation</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 5 -->
+<section><section><h2>Breach Scope and Initial Impact</h2><ul>
+<li>May–July 2017: 147.9 million U.S. consumers affected.</li>
+<li>Data exposed: SSNs, DOBs, addresses, 209,000 credit cards.</li>
+<li>Detected July 29, 2017; disclosed September 7, 2017.</li>
+<li><strong>Metric</strong>: Impacted ~44% of U.S. population.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Attackers] --&gt; B[Equifax Systems]
+                B --&gt; C[Data Exfiltration]
+                C --&gt; D[147.9M Consumers]
+            </div></section><section><p><em>"Over three months, attackers extracted data on 147.9 million Americans—nearly half the U.S.
+                populace. SSNs and other sensitive data were compromised, with detection delayed until July and
+                disclosure in September. This slide quantifies the breach’s enormity and previews the detection failures
+                ahead."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why was detection so delayed?</li>
+<li><strong>Q2:</strong> What immediate risks did this pose?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How might real-time anomaly detection have mitigated this?"</li>
+<li><strong>A:</strong> It could flag unusual data flows, potentially stopping the breach earlier,
+                    though tuning for accuracy is complex.
+                </li>
+<li><strong>Reference:</strong> Chandola, V., et al. (2009). "Anomaly Detection: A Survey." <em>ACM
+                    Computing Surveys</em>, 41(3), 1-58.
+                </li>
+</ul></section></section>
+<!-- Slide 6 -->
+<section><section><h2>The Workforce Before the Breach</h2><ul>
+<li>10,300 employees globally in 2017.</li>
+<li>IT staff: ~1,000; security team understaffed.</li>
+<li>No dedicated CISO until post-breach.</li>
+<li><strong>Key Point</strong>: Human resources misaligned with security needs.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Equifax Workforce] --&gt; B[10,300 Employees]
+                B --&gt; C[IT Staff: 1,000]
+                C --&gt; D[Understaffed Security Team]
+                A --&gt; E[No CISO Pre-Breach]
+            </div></section><section><p><em>"Equifax’s 10,300-strong workforce included roughly 1,000 IT personnel, but its security team was
+                notably lean. The absence of a Chief Information Security Officer until after the breach reflects a
+                broader misalignment of resources, a human factor we’ll revisit in governance discussions."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why is a CISO critical?</li>
+<li><strong>Q2:</strong> How does understaffing impact security?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could workforce training have altered the breach outcome?"</li>
+<li><strong>A:</strong> Regular security training could enhance vigilance, reducing errors like delayed
+                    patching or weak configurations.
+                </li>
+<li><strong>Reference:</strong> Furnell, S. (2017). "The Human Dimension of Cybersecurity." <em>Information
+                    Security Journal</em>, 26(5), 213-220.
+                </li>
+</ul></section></section>
+<!-- Slide 7 -->
+<section><section><h2>Pre-Breach Security Posture</h2><ul>
+<li>Relied on perimeter defenses (firewalls, IDS).</li>
+<li>Limited internal segmentation.</li>
+<li>Patch management manual and inconsistent.</li>
+<li><strong>Technical Note</strong>: No advanced threat detection tools deployed.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Security Posture] --&gt; B[Perimeter Defenses]
+                A --&gt; C[Limited Segmentation]
+                A --&gt; D[Manual Patch Management]
+                B --&gt; E[Firewalls]
+                B --&gt; F[IDS]
+            </div></section><section><p><em>"Before the breach, Equifax leaned on traditional perimeter defenses—firewalls and intrusion
+                detection systems. Internal networks were poorly segmented, and patch management was ad hoc. The lack of
+                advanced tools foreshadowed its inability to detect or contain the attack."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why was perimeter defense insufficient?</li>
+<li><strong>Q2:</strong> What are advanced threat detection tools?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could a defense-in-depth strategy improve this posture?"</li>
+<li><strong>A:</strong> Layered defenses—encryption, segmentation, and monitoring—create multiple
+                    barriers, slowing attackers and aiding detection.
+                </li>
+<li><strong>Reference:</strong> NIST. (2014). "Framework for Improving Critical Infrastructure
+                    Cybersecurity." <em>Version 1.0</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 8 -->
+<section><section><h2>Regulatory Environment Pre-2017</h2><ul>
+<li>Governed by FCRA (Fair Credit Reporting Act).</li>
+<li>No mandatory breach disclosure laws in U.S.</li>
+<li>GDPR not yet in effect (pre-2018).</li>
+<li><strong>Key Point</strong>: Lax regulations enabled delayed response.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Regulatory Environment] --&gt; B[FCRA]
+                A --&gt; C[No U.S. Disclosure Laws]
+                A --&gt; D[Pre-GDPR]
+            </div></section><section><p><em>"Pre-2017, Equifax operated under the FCRA, with no federal mandate for swift breach disclosure.
+                GDPR, with its stringent rules, was still a year away. This regulatory leniency allowed Equifax to delay
+                public notification, a decision with significant repercussions we’ll explore later."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> How does FCRA regulate data handlers?</li>
+<li><strong>Q2:</strong> Why did lax regulations matter?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How might preemptive GDPR compliance have altered Equifax’s fate?"</li>
+<li><strong>A:</strong> GDPR’s security mandates could have forced better practices, potentially
+                    shrinking the breach window or impact.
+                </li>
+<li><strong>Reference:</strong> Voigt, P., &amp; Von dem Bussche, A. (2017). "The EU General Data Protection
+                    Regulation (GDPR)." <em>Springer</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 9 -->
+<section><section><h2>Consumer Trust Pre-Breach</h2><ul>
+<li>High reliance on credit bureaus for loans, jobs.</li>
+<li>Little consumer awareness of data risks.</li>
+<li>Equifax viewed as a trusted entity.</li>
+<li><strong>Metric</strong>: 88% of Americans had credit files (2016).</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Consumers] --&gt; B[Trust in Equifax]
+                B --&gt; C[Credit Decisions]
+                C --&gt; D[Loans]
+                C --&gt; E[Jobs]
+            </div></section><section><p><em>"Before the breach, consumers trusted Equifax implicitly, relying on it for life-altering financial
+                decisions. With 88% of Americans in credit files, awareness of data risks was low. This slide highlights
+                the pre-breach trust dynamic, soon to be shattered."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why was consumer awareness low?</li>
+<li><strong>Q2:</strong> How does trust impact data security?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could consumer education preemptively reduce breach impact?"</li>
+<li><strong>A:</strong> Educated consumers might demand better security or opt for protective measures,
+                    pressuring firms like Equifax.
+                </li>
+<li><strong>Reference:</strong> Acquisti, A., et al. (2015). "Privacy and Human Behavior in the Age of
+                    Information." <em>Science</em>, 347(6221), 509-514.
+                </li>
+</ul></section></section>
+<!-- Slide 10 -->
+<section><section><h2>Early Warning Signs Ignored</h2><ul>
+<li>2016 audit flagged patching delays.</li>
+<li>Struts vulnerability disclosed March 2017.</li>
+<li>Internal alerts unheeded pre-May breach.</li>
+<li><strong>Key Point</strong>: Missed opportunities compounded risk.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant A as Auditor
+                participant E as Equifax
+                participant S as Struts Team
+                A-&gt;&gt;E: 2016: Flag patching delays
+                S-&gt;&gt;E: Mar 2017: Disclose CVE-2017-5638
+                E-&gt;&gt;E: Internal alerts ignored
+                E-&gt;&gt;E: May 2017: Breach occurs
+            </div></section><section><p><em>"Warning signs abounded before the breach. A 2016 audit highlighted patching issues, and the Struts
+                flaw was public by March 2017. Yet, internal alerts went unacted upon. This slide underscores how
+                ignoring red flags amplified Equifax’s vulnerability."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why were audit findings ignored?</li>
+<li><strong>Q2:</strong> What should have been done post-audit?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could automated risk assessment tools prevent such oversights?"</li>
+<li><strong>A:</strong> Real-time risk dashboards could escalate critical issues, ensuring timely action
+                    despite human oversight.
+                </li>
+<li><strong>Reference:</strong> ISO/IEC 27005:2018. "Information Security Risk Management." <em>International
+                    Organization for Standardization</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 11 -->
+<section><section><h2>Exploit Mechanics - CVE-2017-5638</h2><ul>
+<li>Flaw in Struts’ Jakarta Multipart parser.</li>
+<li>Malformed `Content-Type` triggers OGNL execution.</li>
+<li>HTTP POST requests execute arbitrary code.</li>
+<li><strong>Technical Note</strong>: Exception handling flaw exposed system.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant A as Attacker
+                participant S as Struts Parser
+                A-&gt;&gt;S: Send malformed Content-Type
+                S-&gt;&gt;S: Parse triggers OGNL
+                S-&gt;&gt;S: Execute arbitrary code
+            </div></section><section><p><em>"The exploit hinged on CVE-2017-5638, where Struts’ parser mishandled malformed headers, executing
+                OGNL expressions. Attackers sent crafted POST requests, leveraging an exception handling bug to run
+                commands. This slide dissects the technical entry point of the breach."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What makes OGNL dangerous here?</li>
+<li><strong>Q2:</strong> How could Struts prevent this?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "What risks do third-party libraries pose to critical systems?"</li>
+<li><strong>A:</strong> They expand attack surfaces; unpatched flaws in popular libraries can cascade
+                    across users.
+                </li>
+<li><strong>Reference:</strong> Sonatype. (2020). "State of the Software Supply Chain Report."</li>
+</ul></section></section>
+<!-- Slide 12 -->
+<section><section><h2>Network Traversal and Lateral Movement</h2><ul>
+<li>Entry via ACIS; lateral spread to 48 databases.</li>
+<li>Used stolen credentials and unpatched systems.</li>
+<li>Enabled by flat network design.</li>
+<li><strong>Technical Note</strong>: No segmentation to limit access.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[ACIS] --&gt; B[Credentials Stolen]
+                B --&gt; C[48 Databases]
+                A --&gt; D[Flat Network]
+            </div></section><section><p><em>"After breaching ACIS, attackers traversed Equifax’s flat network, accessing 48 databases over 76
+                days. Stolen credentials and unpatched systems facilitated this lateral movement. This slide reveals how
+                network design flaws turned a foothold into a catastrophe."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What is lateral movement?</li>
+<li><strong>Q2:</strong> Why was a flat network problematic?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could segmentation contain such a breach?"</li>
+<li><strong>A:</strong> By isolating systems, segmentation limits movement, trapping attackers in a
+                    single zone.
+                </li>
+<li><strong>Reference:</strong> Scarfone, K., &amp; Mell, P. (2007). "Guide to Network Segmentation." <em>NIST
+                    Special Publication 800-115</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 13 -->
+<section><section><h2>Data Exfiltration Tactics</h2><ul>
+<li>HTTPS used to mask exfiltration as normal traffic.</li>
+<li>Data sent in small, encrypted packets.</li>
+<li>Mimicked legitimate user behavior.</li>
+<li><strong>Technical Note</strong>: No DLP tools deployed.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant A as Attacker
+                participant E as Equifax
+                A-&gt;&gt;E: Encrypt small packets
+                E-&gt;&gt;A: Send via HTTPS
+                A-&gt;&gt;A: Mimic legitimate traffic
+            </div></section><section><p><em>"Attackers exfiltrated data stealthily via HTTPS, blending with normal traffic in small, encrypted
+                bursts. Without Data Loss Prevention (DLP) tools, Equifax couldn’t detect this. This slide showcases the
+                sophistication of the exfiltration and Equifax’s blind spots."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why did HTTPS aid attackers?</li>
+<li><strong>Q2:</strong> What do DLP tools do?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could behavioral analytics catch this?"</li>
+<li><strong>A:</strong> By spotting deviations in traffic volume or destination, it could flag
+                    exfiltration despite encryption.
+                </li>
+<li><strong>Reference:</strong> Liu, S., et al. (2018). "Behavioral Analytics for Intrusion Detection."
+                    <em>IEEE Transactions on Dependable and Secure Computing</em>, 15(4), 694-707.
+                </li>
+</ul></section></section>
+<!-- Slide 14 -->
+<section><section><h2>Patch Management Failures</h2><ul>
+<li>Struts patch released March 7, 2017.</li>
+<li>Equifax’s manual process delayed updates.</li>
+<li>ACIS unpatched by May 13 breach.</li>
+<li><strong>Metric</strong>: 68-day exposure window.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant S as Struts Team
+                participant E as Equifax
+                S-&gt;&gt;E: Mar 7: Release patch
+                E-&gt;&gt;E: Manual process delays
+                E-&gt;&gt;E: May 13: Breach
+            </div></section><section><p><em>"Patch management at Equifax was a glaring failure. The Struts fix was available in March, but
+                manual, siloed efforts left ACIS vulnerable for 68 days. This slide highlights how operational
+                shortcomings enabled the breach."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What slows patch management in big firms?</li>
+<li><strong>Q2:</strong> How does automation help?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How can threat intelligence prioritize patches?"</li>
+<li><strong>A:</strong> It identifies actively exploited flaws, focusing efforts on the most urgent
+                    fixes.
+                </li>
+<li><strong>Reference:</strong> Verizon. (2018). "Data Breach Investigations Report." <em>Verizon
+                    Enterprise</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 15 -->
+<section><section><h2>Insider Threats and Credential Theft</h2><ul>
+<li>Credentials stolen from ACIS used network-wide.</li>
+<li>Weak passwords, no MFA.</li>
+<li>Insider risk: misuse of valid access.</li>
+<li><strong>Technical Note</strong>: No monitoring for credential abuse.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[ACIS] --&gt; B[Stolen Credentials]
+                B --&gt; C[Network Access]
+                C --&gt; D[Weak Passwords]
+                C --&gt; E[No MFA]
+            </div></section><section><p><em>"Attackers leveraged stolen ACIS credentials to roam freely, aided by weak passwords and no
+                multi-factor authentication. Insider threats posed a parallel risk. This slide examines how lax access
+                controls fueled the breach’s scope."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> How can credential theft be prevented?</li>
+<li><strong>Q2:</strong> What distinguishes insider threats?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How might zero-trust mitigate credential risks?"</li>
+<li><strong>A:</strong> By requiring continuous verification and minimal access, it limits damage from
+                    stolen credentials.
+                </li>
+<li><strong>Reference:</strong> Kindervag, J. (2010). "Build Security Into Your Network’s DNA: The Zero
+                    Trust Network Architecture." <em>Forrester Research</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 16 -->
+<section><section><h2>Detection Delays - Tools and Missteps</h2><ul>
+<li>Breach undetected for 76 days.</li>
+<li>SSL inspection tool failed (expired certificate).</li>
+<li>SIEM misconfigured, missed alerts.</li>
+<li><strong>Technical Note</strong>: Lack of redundancy in monitoring.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Breach] --&gt; B[76 Days Undetected]
+                B --&gt; C[SSL Tool Failure]
+                B --&gt; D[SIEM Misconfigured]
+            </div></section><section><p><em>"The breach went unnoticed for 76 days due to cascading failures: an expired SSL certificate broke
+                traffic inspection, and a misconfigured SIEM missed key signals. This slide dissects how tool missteps
+                prolonged the attack."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why did an expired certificate matter?</li>
+<li><strong>Q2:</strong> What’s SIEM’s role?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could redundancy in monitoring tools help?"</li>
+<li><strong>A:</strong> Backup systems or overlapping tools could catch what one misses, enhancing
+                    detection resilience.
+                </li>
+<li><strong>Reference:</strong> Bhadauria, R., &amp; Sanyal, S. (2012). "Survey on Security Issues in SIEM."
+                    <em>International Journal of Computer Applications</em>, 53(15), 1-7.
+                </li>
+</ul></section></section>
+<!-- Slide 17 -->
+<section><section><h2>Command and Control Infrastructure</h2><ul>
+<li>Attackers used external C2 servers.</li>
+<li>Encrypted channels for instructions.</li>
+<li>Rotated IPs to evade tracking.</li>
+<li><strong>Technical Note</strong>: Likely leveraged botnets.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant A as Attacker
+                participant C as C2 Server
+                participant E as Equifax
+                A-&gt;&gt;C: Send encrypted commands
+                C-&gt;&gt;E: Control via rotating IPs
+                E-&gt;&gt;C: Return data
+            </div></section><section><p><em>"Attackers coordinated via external command and control (C2) servers, using encrypted channels and
+                rotating IPs to stay hidden. Possibly botnet-driven, this infrastructure enabled persistent access. This
+                slide explores the attackers’ operational backbone."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What is a C2 server?</li>
+<li><strong>Q2:</strong> How do botnets enhance attacks?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could ML detect C2 traffic?"</li>
+<li><strong>A:</strong> ML can identify patterns in encrypted traffic (e.g., timing, volume) that
+                    deviate from norms, flagging potential C2 activity.
+                </li>
+<li><strong>Reference:</strong> Gu, G., et al. (2008). "BotMiner: Clustering Analysis of Network Traffic
+                    for Botnet Detection." <em>IEEE Symposium on Security and Privacy</em>, 108-123.
+                </li>
+</ul></section></section>
+<!-- Slide 18 -->
+<section><section><h2>Data Staging and Compression</h2><ul>
+<li>Data staged on internal servers pre-exfiltration.</li>
+<li>Compressed to reduce detection risk.</li>
+<li>Split into small chunks for transfer.</li>
+<li><strong>Technical Note</strong>: No logs captured staging activity.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant A as Attacker
+                participant E as Equifax
+                A-&gt;&gt;E: Stage data on servers
+                E-&gt;&gt;E: Compress and split
+                A-&gt;&gt;E: Exfiltrate chunks
+            </div></section><section><p><em>"Before exfiltration, attackers staged data on internal servers, compressing and splitting it to
+                minimize detection. Equifax’s lack of logging let this go unnoticed. This slide details the methodical
+                preparation behind the data theft."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why compress data?</li>
+<li><strong>Q2:</strong> How does staging evade detection?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could file integrity monitoring catch staging?"</li>
+<li><strong>A:</strong> It tracks unauthorized file changes or creations, flagging staging activities if
+                    tuned to sensitive areas.
+                </li>
+<li><strong>Reference:</strong> Kim, G., et al. (2013). "File Integrity Monitoring: A Survey." <em>Security
+                    and Communication Networks</em>, 6(10), 1213-1224.
+                </li>
+</ul></section></section>
+<!-- Slide 19 -->
+<section><section><h2>Exploit Timeline and Escalation</h2><ul>
+<li>March 6: CVE-2017-5638 disclosed.</li>
+<li>May 13: Initial ACIS exploit.</li>
+<li>May–July: Escalation to 48 databases.</li>
+<li><strong>Metric</strong>: 76 days of undetected access.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant S as Struts Team
+                participant E as Equifax
+                participant A as Attacker
+                S-&gt;&gt;E: Mar 6: Disclose CVE
+                A-&gt;&gt;E: May 13: Exploit ACIS
+                A-&gt;&gt;E: May-Jul: Access 48 DBs
+            </div></section><section><p><em>"The timeline began with the Struts disclosure in March, followed by the May 13 exploit. Over 76
+                days, attackers escalated from ACIS to 48 databases, undetected. This slide maps the breach’s
+                progression and the critical delay in response."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why did escalation take months?</li>
+<li><strong>Q2:</strong> What enabled such long access?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could threat hunting shorten this timeline?"</li>
+<li><strong>A:</strong> Proactive hunting could uncover subtle signs of compromise, reducing dwell time
+                    significantly.
+                </li>
+<li><strong>Reference:</strong> SANS Institute. (2019). "Threat Hunting: A Practical Guide." <em>SANS
+                    Whitepaper</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 20 -->
+<section><section><h2>Technical Root Causes</h2><ul>
+<li>Unpatched Struts vulnerability.</li>
+<li>Flat network architecture.</li>
+<li>Inadequate monitoring tools.</li>
+<li><strong>Key Point</strong>: Systemic failures, not just one flaw.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Breach] --&gt; B[Unpatched Struts]
+                A --&gt; C[Flat Network]
+                A --&gt; D[No Monitoring]
+            </div></section><section><p><em>"The breach stemmed from multiple technical failures: an unpatched Struts flaw, a flat network, and
+                weak monitoring. This wasn’t a single point of failure but a systemic collapse, which this slide
+                synthesizes as we transition to forensic insights."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why wasn’t one failure enough?</li>
+<li><strong>Q2:</strong> How common are these issues?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could a security maturity model prevent such root causes?"</li>
+<li><strong>A:</strong> It assesses and improves processes systematically, ensuring patching,
+                    segmentation, and monitoring are robust.
+                </li>
+<li><strong>Reference:</strong> Caralli, R., et al. (2010). "The CERT Resilience Management Model." <em>Addison-Wesley</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 21 -->
+<section><section><h2>Forensic Analysis - Timeline Reconstruction</h2><ul>
+<li>May 13–July 29, 2017: Attack timeline.</li>
+<li>Tools: packet captures, logs, memory forensics.</li>
+<li>Path: ACIS → credentials → databases.</li>
+<li><strong>Technical Note</strong>: SIEM tools underperformed.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant A as Attacker
+                participant E as Equifax
+                participant F as Forensics
+                A-&gt;&gt;E: May 13-Jul 29: Attack
+                F-&gt;&gt;E: Analyze packets/logs/memory
+            </div></section><section><p><em>"Forensics rebuilt the breach from May 13 to July 29 using packet captures, logs, and memory
+                analysis. The path was ACIS to credential theft to database access, but misconfigured SIEM tools failed
+                to alert. This slide opens our forensic deep dive."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What’s memory forensics?</li>
+<li><strong>Q2:</strong> Why did SIEM fail?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could threat hunting enhance forensic efforts?"</li>
+<li><strong>A:</strong> It proactively seeks anomalies, complementing reactive forensic analysis with
+                    earlier detection.
+                </li>
+<li><strong>Reference:</strong> SANS Institute. (2019). "Threat Hunting: A Practical Guide." <em>SANS
+                    Whitepaper</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 22 -->
+<section><section><h2>Attribution Debates - Who Was Responsible?</h2><ul>
+<li>Suspected state actors initially.</li>
+<li>2020: Four Chinese military officers indicted.</li>
+<li>Issues: IP spoofing, lack of hard evidence.</li>
+<li><strong>Technical Note</strong>: Behavioral TTPs key to attribution.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Attack] --&gt; B[State Actors?]
+                A --&gt; C[Chinese Officers]
+                B --&gt; D[IP Spoofing]
+                C --&gt; E[TTPs]
+            </div></section><section><p><em>"Attribution was murky—early suspicion fell on state actors, culminating in 2020 indictments of
+                Chinese officers. IP spoofing and false flags complicated proof, relying on behavioral tactics instead.
+                This slide navigates the attribution challenge."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why is cyber attribution hard?</li>
+<li><strong>Q2:</strong> What are TTPs?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "What are the geopolitical stakes of cyber attribution?"</li>
+<li><strong>A:</strong> Misattribution can escalate tensions; accurate attribution enables deterrence
+                    but risks retaliation.
+                </li>
+<li><strong>Reference:</strong> Rid, T., &amp; Buchanan, B. (2015). "Attributing Cyber Attacks." <em>Journal
+                    of Strategic Studies</em>, 38(1-2), 4-37.
+                </li>
+</ul></section></section>
+
+<!-- Slide 24 -->
+<section><section><h2>Consumer Impact and Identity Theft</h2><ul>
+<li>147.9M U.S., 15.2M UK consumers hit.</li>
+<li>SSNs exposed: persistent fraud risk.</li>
+<li>Credit monitoring offered; &lt;10% uptake.</li>
+<li><strong>Metric</strong>: Identity theft spiked post-breach.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Breach] --&gt; B[147.9M U.S.]
+                A --&gt; C[15.2M UK]
+                B --&gt; D[SSN Fraud Risk]
+            </div></section><section><p><em>"The breach’s human cost was immense—147.9 million Americans faced lifelong fraud risks from exposed
+                SSNs. Equifax’s monitoring remedy saw low uptake, leaving many exposed. This slide quantifies the
+                consumer fallout."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why are SSNs a big risk?</li>
+<li><strong>Q2:</strong> Why was monitoring uptake low?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "Could blockchain reduce post-breach identity risks?"</li>
+<li><strong>A:</strong> Decentralized, user-controlled identity systems could limit reliance on
+                    vulnerable central stores.
+                </li>
+<li><strong>Reference:</strong> Dunphy, P., &amp; Petitcolas, F. (2018). "A First Look at Identity
+                    Management Schemes on the Blockchain." <em>IEEE Security &amp; Privacy</em>, 16(4), 20-29.
+                </li>
+</ul></section></section>
+<!-- Slide 25 -->
+<section><section><h2>Corporate Governance Failures</h2><ul>
+<li>CIO, CSO had separate reporting lines.</li>
+<li>Board lacked cybersecurity expertise.</li>
+<li>Security deprioritized for profit.</li>
+<li><strong>Technical Note</strong>: CISO appointed post-breach.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Governance] --&gt; B[CIO/CSO Silos]
+                A --&gt; C[No Board Expertise]
+                A --&gt; D[Profit Focus]
+            </div></section><section><p><em>"Equifax’s governance was disjointed—CIO and CSO silos, an uninformed board, and a profit-first
+                mindset. A CISO arrived only after the breach. This slide ties governance lapses to the security
+                collapse."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What does a CISO do?</li>
+<li><strong>Q2:</strong> How can boards bolster oversight?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could socio-technical approaches fix governance?"</li>
+<li><strong>A:</strong> Integrating people, processes, and tech ensures security aligns with human and
+                    organizational dynamics.
+                </li>
+<li><strong>Reference:</strong> Carayon, P., et al. (2015). "Advancing a Sociotechnical Systems
+                    Approach." <em>Ergonomics</em>, 58(4), 548-564.
+                </li>
+</ul></section></section>
+<!-- Slide 26 -->
+<section><section><h2>Forensic Tools and Techniques</h2><ul>
+<li>Packet captures mapped data flows.</li>
+<li>Memory dumps revealed exploit code.</li>
+<li>Logs (when available) tracked actions.</li>
+<li><strong>Technical Note</strong>: Volatility framework used for memory analysis.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Forensics] --&gt; B[Packet Captures]
+                A --&gt; C[Memory Dumps]
+                A --&gt; D[Logs]
+                C --&gt; E[Volatility]
+            </div></section><section><p><em>"Forensics relied on packet captures, memory dumps, and sparse logs to reconstruct the breach. Tools
+                like Volatility helped uncover exploit artifacts in RAM. This slide details the technical detective work
+                post-breach."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> How do packet captures help?</li>
+<li><strong>Q2:</strong> What’s Volatility?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could live forensics improve over post-mortem analysis?"</li>
+<li><strong>A:</strong> Real-time memory and traffic analysis could detect breaches as they happen, not
+                    just after.
+                </li>
+<li><strong>Reference:</strong> Ligh, M., et al. (2014). "The Art of Memory Forensics." <em>Wiley</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 27 -->
+<section><section><h2>Evidence Preservation Challenges</h2><ul>
+<li>Logs overwritten or incomplete.</li>
+<li>Systems altered during response.</li>
+<li>Legal pressure to preserve data.</li>
+<li><strong>Technical Note</strong>: Chain of custody critical.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Evidence] --&gt; B[Logs Overwritten]
+                A --&gt; C[Systems Altered]
+                A --&gt; D[Legal Pressure]
+            </div></section><section><p><em>"Preserving evidence was tough—logs were spotty or lost, and response efforts altered systems. Legal
+                demands clashed with operational needs, emphasizing chain of custody. This slide highlights forensic
+                hurdles."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why were logs incomplete?</li>
+<li><strong>Q2:</strong> What’s chain of custody?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could automated logging improve evidence preservation?"</li>
+<li><strong>A:</strong> Centralized, tamper-proof logs with redundancy could retain data for forensic
+                    use.
+                </li>
+<li><strong>Reference:</strong> Casey, E. (2011). "Digital Evidence and Computer Crime." <em>Academic
+                    Press</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 28 -->
+<section><section><h2>Post-Breach Network Analysis</h2><ul>
+<li>Mapped 48 compromised databases.</li>
+<li>Identified unencrypted data stores.</li>
+<li>Revealed flat network vulnerabilities.</li>
+<li><strong>Technical Note</strong>: Encryption gaps aided exfiltration.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Network Analysis] --&gt; B[48 Databases]
+                A --&gt; C[Unencrypted Stores]
+                A --&gt; D[Flat Network]
+            </div></section><section><p><em>"Post-breach analysis mapped 48 compromised databases, exposing unencrypted stores and a flat
+                network. Encryption gaps made exfiltration easier. This slide reveals the structural flaws uncovered
+                after the fact."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why wasn’t all data encrypted?</li>
+<li><strong>Q2:</strong> How does a flat network worsen breaches?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could encryption at rest have limited damage?"</li>
+<li><strong>A:</strong> It renders stolen data unreadable without keys, though key management adds
+                    complexity.
+                </li>
+<li><strong>Reference:</strong> NIST. (2017). "Guide to Data Encryption." <em>SP 800-111</em>.</li>
+</ul></section></section>
+<!-- Slide 29 -->
+<section><section><h2>Incident Response - Initial Chaos</h2><ul>
+<li>Detected July 29; response uncoordinated.</li>
+<li>Lacked clear incident response plan.</li>
+<li>Delayed containment until July 30.</li>
+<li><strong>Technical Note</strong>: No dedicated IR team pre-breach.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant E as Equifax
+                participant A as Attacker
+                A-&gt;&gt;E: Breach ongoing
+                E-&gt;&gt;E: Jul 29: Detect
+                E-&gt;&gt;E: Jul 30: Contain
+            </div></section><section><p><em>"Equifax detected the breach on July 29, but the response was chaotic—lacking a clear plan or
+                dedicated team, containment lagged to July 30. This slide captures the disorganized initial
+                reaction."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why was there no IR plan?</li>
+<li><strong>Q2:</strong> What delayed containment?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could tabletop exercises improve IR readiness?"</li>
+<li><strong>A:</strong> Simulating breaches hones coordination and decision-making, reducing response
+                    time.
+                </li>
+<li><strong>Reference:</strong> NIST. (2012). "Computer Security Incident Handling Guide." <em>SP 800-61
+                    Rev. 2</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 30 -->
+<section><section><h2>Public Disclosure Delays</h2><ul>
+<li>Detected July 29; disclosed September 7.</li>
+<li>40-day delay criticized heavily.</li>
+<li>Executives sold stock pre-announcement.</li>
+<li><strong>Key Point</strong>: Trust eroded by opacity.</li>
+</ul></section><section><div class="mermaid">
+                sequenceDiagram
+                participant E as Equifax
+                participant P as Public
+                E-&gt;&gt;E: Jul 29: Detect breach
+                E-&gt;&gt;P: Sep 7: Disclose
+            </div></section><section><p><em>"Equifax waited 40 days to disclose the breach, from July 29 to September 7, drawing ire—especially
+                as executives sold stock beforehand. This slide examines how delayed transparency shattered trust."</em>
+</p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why did Equifax delay disclosure?</li>
+<li><strong>Q2:</strong> Was stock selling illegal?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do disclosure laws balance security and transparency?"</li>
+<li><strong>A:</strong> They mandate timely alerts to protect consumers while allowing firms to secure
+                    systems first.
+                </li>
+<li><strong>Reference:</strong> SEC. (2018). "Guidance on Public Company Cybersecurity Disclosures."
+                </li>
+</ul></section></section>
+<!-- Slide 31 -->
+<section><section><h2>Legal Fallout - Lawsuits and Fines</h2><ul>
+<li>FTC settlement: $575M–$700M.</li>
+<li>Class-action lawsuits from consumers.</li>
+<li>Costs exceeded $1.4B by 2019.</li>
+<li><strong>Metric</strong>: Largest data breach settlement then.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Breach] --&gt; B[FTC: $575M-$700M]
+                A --&gt; C[Class-Action Suits]
+                A --&gt; D[Costs: $1.4B+]
+            </div></section><section><p><em>"The legal aftermath was staggering—FTC fines up to $700M, consumer lawsuits, and costs topping $1.4B
+                by 2019. The largest breach settlement of its time, this slide tallies the financial toll."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Who paid the fines?</li>
+<li><strong>Q2:</strong> What did lawsuits achieve?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do legal penalties influence corporate security investment?"</li>
+<li><strong>A:</strong> They incentivize proactive measures but may divert funds from innovation to
+                    compliance.
+                </li>
+<li><strong>Reference:</strong> Schwartz, P., &amp; Janger, E. (2007). "Notification of Data Security
+                    Breaches." <em>Michigan Law Review</em>, 105(5), 913-984.
+                </li>
+</ul></section></section>
+<!-- Slide 32 -->
+<section><section><h2>Stock Market Reaction</h2><ul>
+<li>Stock fell 35% post-disclosure.</li>
+<li>Market cap lost $6B in days.</li>
+<li>Recovered partially by 2018.</li>
+<li><strong>Metric</strong>: Reflects trust and stability fears.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Disclosure] --&gt; B[Stock Drop: 35%]
+                B --&gt; C[$6B Market Cap Loss]
+                A --&gt; D[Partial Recovery]
+            </div></section><section><p><em>"Post-disclosure, Equifax’s stock plummeted 35%, shedding $6B in market cap as trust waned. A partial
+                rebound by 2018 showed resilience but lingering damage. This slide charts the market’s swift
+                punishment."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why did the stock drop so fast?</li>
+<li><strong>Q2:</strong> What aided recovery?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do breaches affect long-term shareholder value?"</li>
+<li><strong>A:</strong> They erode trust and revenue, but recovery hinges on reputation repair and risk
+                    mitigation.
+                </li>
+<li><strong>Reference:</strong> Gatzert, N. (2015). "The Impact of Cyber Risk on Firms." <em>Risk
+                    Management</em>, 17(4), 275-296.
+                </li>
+</ul></section></section>
+<!-- Slide 33 -->
+<section><section><h2>Equifax’s Remediation Efforts</h2><ul>
+<li>Spent $1.4B on security upgrades by 2019.</li>
+<li>Hired CISO, revamped IT.</li>
+<li>Implemented MFA, segmentation.</li>
+<li><strong>Technical Note</strong>: Shifted to cloud security.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Remediation] --&gt; B[$1.4B Investment]
+                A --&gt; C[CISO Hired]
+                A --&gt; D[MFA &amp; Segmentation]
+                A --&gt; E[Cloud Security]
+            </div></section><section><p><em>"Equifax poured $1.4B into security post-breach, hiring a CISO and overhauling IT with MFA,
+                segmentation, and cloud tech. This slide outlines their costly pivot to resilience."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What does a CISO oversee?</li>
+<li><strong>Q2:</strong> Why move to the cloud?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How effective are reactive security upgrades?"</li>
+<li><strong>A:</strong> They address immediate flaws but may lag behind evolving threats without
+                    proactive design.
+                </li>
+<li><strong>Reference:</strong> Kshetri, N. (2017). "Blockchain’s Roles in Strengthening Cybersecurity."
+                    <em>Telecommunications Policy</em>, 41(10), 1020-1030.
+                </li>
+</ul></section></section>
+<!-- Slide 34 -->
+<section><section><h2>Consumer Trust Post-Breach</h2><ul>
+<li>Trust plummeted after disclosure.</li>
+<li>Credit freeze requests soared.</li>
+<li>Reputation damage persists.</li>
+<li><strong>Metric</strong>: 75% of Americans wary of bureaus (2018).</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Breach] --&gt; B[Trust Lost]
+                B --&gt; C[Credit Freezes]
+                B --&gt; D[Reputation Hit]
+            </div></section><section><p><em>"Consumer trust in Equifax cratered post-breach, with credit freezes spiking and 75% of Americans
+                skeptical of bureaus by 2018. This slide captures the enduring relational fallout."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What’s a credit freeze?</li>
+<li><strong>Q2:</strong> Can trust be rebuilt?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How could transparency rebuild trust?"</li>
+<li><strong>A:</strong> Open communication and proactive remedies signal accountability, though
+                    skepticism may linger.
+                </li>
+<li><strong>Reference:</strong> Pirson, M., &amp; Malhotra, D. (2011). "Foundations of Organizational
+                    Trust." <em>Journal of Management</em>, 37(4), 1087-1112.
+                </li>
+</ul></section></section>
+<!-- Slide 35 -->
+<section><section><h2>Industry-Wide Security Shifts</h2><ul>
+<li>Breach spurred sector-wide upgrades.</li>
+<li>Focus on patching, monitoring.</li>
+<li>CISOs became standard in finance.</li>
+<li><strong>Technical Note</strong>: Zero-trust adoption grew.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Equifax Breach] --&gt; B[Industry Upgrades]
+                B --&gt; C[Patching Focus]
+                B --&gt; D[Monitoring]
+                B --&gt; E[CISOs Common]
+                B --&gt; F[Zero-Trust]
+            </div></section><section><p><em>"The Equifax breach jolted the industry, driving upgrades in patching and monitoring. CISOs became
+                fixtures, and zero-trust gained traction. This slide maps the sector’s security awakening."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What is zero-trust?</li>
+<li><strong>Q2:</strong> Why did CISOs rise?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do high-profile breaches catalyze industry change?"</li>
+<li><strong>A:</strong> They expose shared vulnerabilities, forcing collective action to avoid similar
+                    fates.
+                </li>
+<li><strong>Reference:</strong> Cavusoglu, H., et al. (2004). "The Effect of Security Breaches on Stock
+                    Prices." <em>Management Science</em>, 50(10), 1376-1388.
+                </li>
+</ul></section></section>
+<!-- Slide 36 -->
+<section><section><h2>Lessons in Patch Management</h2><ul>
+<li>Manual patching failed Equifax.</li>
+<li>Automation now industry best practice.</li>
+<li>Prioritize critical vulnerabilities.</li>
+<li><strong>Technical Note</strong>: CVSS scores guide urgency.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Patch Lessons] --&gt; B[Manual Failure]
+                A --&gt; C[Automation Best]
+                A --&gt; D[Prioritize CVEs]
+            </div></section><section><p><em>"Equifax’s manual patching debacle taught the industry to automate and prioritize critical fixes
+                using CVSS scores. This slide distills a key technical lesson from the breach."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What’s CVSS?</li>
+<li><strong>Q2:</strong> Why automate patching?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do you balance patch speed with stability?"</li>
+<li><strong>A:</strong> Test patches in sandboxes first, then roll out rapidly to critical systems.</li>
+<li><strong>Reference:</strong> FIRST. (2021). "Common Vulnerability Scoring System v3.1."
+                    <em>FIRST.org</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 37 -->
+<section><section><h2>Lessons in Network Segmentation</h2><ul>
+<li>Flat network enabled lateral spread.</li>
+<li>Segmentation now standard practice.</li>
+<li>Isolates breaches, limits damage.</li>
+<li><strong>Technical Note</strong>: VLANs, firewalls key tools.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Segmentation Lessons] --&gt; B[Flat Network Fail]
+                A --&gt; C[Segmentation Standard]
+                A --&gt; D[Limit Damage]
+            </div></section><section><p><em>"Equifax’s flat network let attackers roam; segmentation with VLANs and firewalls is now standard to
+                contain breaches. This slide highlights a structural lesson learned."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What’s a VLAN?</li>
+<li><strong>Q2:</strong> How does segmentation stop attackers?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do you design segmentation for scalability?"</li>
+<li><strong>A:</strong> Use micro-segmentation with software-defined networks to adapt dynamically.</li>
+<li><strong>Reference:</strong> Shackleford, D. (2016). "Network Segmentation Strategies." <em>SANS
+                    Institute</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 38 -->
+<section><section><h2>Lessons in Monitoring and Detection</h2><ul>
+<li>76-day delay exposed monitoring gaps.</li>
+<li>SIEM, IDS now paired with AI.</li>
+<li>Real-time alerts critical.</li>
+<li><strong>Technical Note</strong>: Anomaly detection key.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Monitoring Lessons] --&gt; B[76-Day Delay]
+                A --&gt; C[SIEM + AI]
+                A --&gt; D[Real-Time Alerts]
+            </div></section><section><p><em>"A 76-day detection lag underscored Equifax’s monitoring woes. Now, SIEM and IDS integrate AI for
+                real-time anomaly detection. This slide captures a vital detection lesson."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What’s anomaly detection?</li>
+<li><strong>Q2:</strong> How does AI improve monitoring?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do you reduce false positives in AI monitoring?"</li>
+<li><strong>A:</strong> Tune models with historical data and human oversight to refine accuracy.</li>
+<li><strong>Reference:</strong> Sommer, R., &amp; Paxson, V. (2010). "Outside the Closed World: On Using
+                    Machine Learning for Network Intrusion Detection." <em>IEEE Symposium on Security and Privacy</em>,
+                    305-316.
+                </li>
+</ul></section></section>
+<!-- Slide 39 -->
+<section><section><h2>Lessons in Incident Response</h2><ul>
+<li>Equifax lacked a robust IR plan.</li>
+<li>IR teams now mandatory.</li>
+<li>Practice via simulations vital.</li>
+<li><strong>Technical Note</strong>: Playbooks standardize response.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[IR Lessons] --&gt; B[No Plan Fail]
+                A --&gt; C[IR Teams Mandatory]
+                A --&gt; D[Simulations]
+            </div></section><section><p><em>"Equifax’s chaotic response showed the need for structured IR plans, dedicated teams, and playbooks
+                honed by simulations. This slide outlines a core operational lesson."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What’s an IR playbook?</li>
+<li><strong>Q2:</strong> Why simulate breaches?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do you measure IR effectiveness?"</li>
+<li><strong>A:</strong> Track containment time, damage scope, and recovery speed in drills.</li>
+<li><strong>Reference:</strong> NIST. (2012). "Computer Security Incident Handling Guide." <em>SP 800-61
+                    Rev. 2</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 40 -->
+<section><section><h2>Lessons in Governance</h2><ul>
+<li>Security sidelined pre-breach.</li>
+<li>Boards now demand cyber expertise.</li>
+<li>CISO role elevated.</li>
+<li><strong>Key Point</strong>: Align security with strategy.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Governance Lessons] --&gt; B[Security Sidelined]
+                A --&gt; C[Board Expertise]
+                A --&gt; D[CISO Elevated]
+            </div></section><section><p><em>"Equifax’s governance ignored security until disaster struck. Now, boards seek cyber expertise, and
+                CISOs are strategic players. This slide stresses aligning security with corporate goals."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why wasn’t security a priority?</li>
+<li><strong>Q2:</strong> What does a CISO bring to governance?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How can metrics drive governance focus on security?"</li>
+<li><strong>A:</strong> KPIs like breach response time or patch compliance keep security visible.</li>
+<li><strong>Reference:</strong> ISACA. (2018). "COBIT 2019 Framework: Governance and Management
+                    Objectives."
+                </li>
+</ul></section></section>
+<!-- Slide 41 -->
+<section><section><h2>Technological Innovations Post-Breach</h2><ul>
+<li>AI-driven threat detection rose.</li>
+<li>Blockchain explored for identity.</li>
+<li>Zero-trust architectures adopted.</li>
+<li><strong>Technical Note</strong>: Shift to proactive defense.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Innovations] --&gt; B[AI Detection]
+                A --&gt; C[Blockchain ID]
+                A --&gt; D[Zero-Trust]
+            </div></section><section><p><em>"The breach spurred tech advances—AI for detection, blockchain for identity, and zero-trust designs.
+                This slide showcases the proactive shift in cybersecurity tools."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> How does blockchain secure identity?</li>
+<li><strong>Q2:</strong> What’s proactive defense?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How viable is blockchain for mass identity management?"</li>
+<li><strong>A:</strong> It’s secure but faces scalability and adoption hurdles.</li>
+<li><strong>Reference:</strong> Zyskind, G., et al. (2015). "Decentralizing Privacy: Using Blockchain."
+                    <em>IEEE Security &amp; Privacy Workshops</em>, 180-184.
+                </li>
+</ul></section></section>
+<!-- Slide 42 -->
+<section><section><h2>Economic Impact on Equifax</h2><ul>
+<li>$1.4B in direct costs by 2019.</li>
+<li>Revenue dipped post-breach.</li>
+<li>Long-term trust loss hit growth.</li>
+<li><strong>Metric</strong>: Costs dwarfed 2017 profits.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Breach] --&gt; B[$1.4B Costs]
+                A --&gt; C[Revenue Dip]
+                A --&gt; D[Trust Loss]
+            </div></section><section><p><em>"Equifax faced $1.4B in costs, a revenue dip, and stunted growth from trust loss—far exceeding 2017
+                profits. This slide quantifies the economic blow."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What were the main costs?</li>
+<li><strong>Q2:</strong> How long did recovery take?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do breaches affect competitive advantage?"</li>
+<li><strong>A:</strong> They erode customer base and market position, favoring rivals with stronger
+                    security.
+                </li>
+<li><strong>Reference:</strong> Romanosky, S. (2016). "Examining the Costs of Cyber Incidents." <em>Journal
+                    of Cybersecurity</em>, 2(2), 121-135.
+                </li>
+</ul></section></section>
+<!-- Slide 43 -->
+<section><section><h2>Global Implications</h2><ul>
+<li>15.2M UK, 19K Canadian records hit.</li>
+<li>Spurred international data laws.</li>
+<li>Cross-border fraud risks rose.</li>
+<li><strong>Key Point</strong>: Breaches transcend borders.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Breach] --&gt; B[UK: 15.2M]
+                A --&gt; C[Canada: 19K]
+                A --&gt; D[Global Laws]
+            </div></section><section><p><em>"The breach’s reach—15.2M UK and 19K Canadian records—pushed global data laws and heightened
+                cross-border fraud risks. This slide underscores its international scope."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why did it affect other countries?</li>
+<li><strong>Q2:</strong> What laws changed globally?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do global breaches challenge jurisdiction?"</li>
+<li><strong>A:</strong> They blur legal lines, requiring harmonized regulations and cooperation.</li>
+<li><strong>Reference:</strong> Shackelford, S. (2014). "Managing Cyber Attacks in International Law."
+                    <em>Cambridge University Press</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 44 -->
+<section><section><h2>Cybersecurity Culture Shift</h2><ul>
+<li>Breach made security a C-suite priority.</li>
+<li>Training programs expanded.</li>
+<li>Employees now first defense line.</li>
+<li><strong>Key Point</strong>: Culture drives resilience.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Culture Shift] --&gt; B[C-Suite Priority]
+                A --&gt; C[Training Expanded]
+                A --&gt; D[Employees as Defense]
+            </div></section><section><p><em>"Post-breach, security became a C-suite issue, with expanded training making employees the first
+                defense. This slide highlights the cultural shift toward resilience."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why wasn’t security a priority before?</li>
+<li><strong>Q2:</strong> How does training help?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do you measure a security culture’s strength?"</li>
+<li><strong>A:</strong> Assess phishing resistance, policy adherence, and incident reporting rates.</li>
+<li><strong>Reference:</strong> Schein, E. (2010). "Organizational Culture and Leadership." <em>Jossey-Bass</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 45 -->
+<section><section><h2>Future Breach Prevention</h2><ul>
+<li>Proactive threat hunting adopted.</li>
+<li>AI predicts attack patterns.</li>
+<li>Continuous auditing now norm.</li>
+<li><strong>Technical Note</strong>: Shift from reactive to predictive.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Prevention] --&gt; B[Threat Hunting]
+                A --&gt; C[AI Prediction]
+                A --&gt; D[Continuous Auditing]
+            </div></section><section><p><em>"The future lies in prevention—threat hunting, AI pattern prediction, and continuous auditing mark a
+                shift from reaction to foresight. This slide envisions next-gen defenses."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What’s threat hunting?</li>
+<li><strong>Q2:</strong> How does AI predict attacks?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How reliable is AI in predicting breaches?"</li>
+<li><strong>A:</strong> It excels with big data but needs human validation to avoid over-reliance.</li>
+<li><strong>Reference:</strong> Goodfellow, I., et al. (2016). "Deep Learning." <em>MIT Press</em>.</li>
+</ul></section></section>
+<!-- Slide 46 -->
+<section><section><h2>Equifax’s Legacy in Cybersecurity</h2><ul>
+<li>Case study in failure and recovery.</li>
+<li>Shaped laws, practices globally.</li>
+<li>Cautionary tale for data giants.</li>
+<li><strong>Key Point</strong>: Breach redefined security norms.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Equifax Legacy] --&gt; B[Failure &amp; Recovery]
+                A --&gt; C[Law &amp; Practice Shift]
+                A --&gt; D[Cautionary Tale]
+            </div></section><section><p><em>"Equifax’s breach is a dual legacy—failure that spurred recovery, reshaping laws and practices
+                worldwide. A warning for data giants, this slide frames its lasting impact."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why is Equifax a case study?</li>
+<li><strong>Q2:</strong> What norms changed?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How do breaches like Equifax shape public policy?"</li>
+<li><strong>A:</strong> They expose gaps, driving laws that mandate accountability and security.</li>
+<li><strong>Reference:</strong> Solove, D. (2018). "The Future of Privacy." <em>Oxford University
+                    Press</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 47 -->
+<section><section><h2>Ethical Questions in Data Handling</h2><ul>
+<li>Who owns consumer data?</li>
+<li>Consent vs. profit tensions.</li>
+<li>Breach exposed ethical gaps.</li>
+<li><strong>Key Point</strong>: Duty to protect paramount.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Ethical Issues] --&gt; B[Data Ownership]
+                A --&gt; C[Consent vs. Profit]
+                A --&gt; D[Duty to Protect]
+            </div></section><section><p><em>"The breach raised ethical stakes—who owns data, how is consent balanced with profit, and what’s the
+                duty to protect? This slide probes the moral lessons."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why don’t consumers own their data?</li>
+<li><strong>Q2:</strong> What’s ethical data use?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How can ethical frameworks guide data firms?"</li>
+<li><strong>A:</strong> Principles like transparency and accountability can align profit with
+                    protection.
+                </li>
+<li><strong>Reference:</strong> Floridi, L. (2014). "The Ethics of Information." <em>Oxford University
+                    Press</em>.
+                </li>
+</ul></section></section>
+<!-- Slide 48 -->
+<section><section><h2>Technological Arms Race</h2><ul>
+<li>Attackers innovate post-Equifax.</li>
+<li>Defenders deploy AI, quantum tech.</li>
+<li>Cat-and-mouse game intensifies.</li>
+<li><strong>Technical Note</strong>: Future hinges on speed.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Arms Race] --&gt; B[Attacker Innovation]
+                A --&gt; C[AI &amp; Quantum Defense]
+                A --&gt; D[Speed Critical]
+            </div></section><section><p><em>"Post-Equifax, attackers and defenders escalated—new exploits met with AI and quantum defenses. Speed
+                defines this arms race, as this slide illustrates."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> What’s quantum tech in security?</li>
+<li><strong>Q2:</strong> Why is speed key?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How might quantum computing disrupt current encryption?"</li>
+<li><strong>A:</strong> It could break RSA fast, pushing adoption of quantum-resistant algorithms.</li>
+<li><strong>Reference:</strong> Shor, P. (1994). "Algorithms for Quantum Computation." <em>SIAM Journal
+                    on Computing</em>, 26(5), 1484-1509.
+                </li>
+</ul></section></section>
+<!-- Slide 49 -->
+<section><section><h2>Equifax Today - A Changed Entity</h2><ul>
+<li>Security-first focus post-2017.</li>
+<li>Revenue stable, trust fragile.</li>
+<li>Leads in breach recovery lessons.</li>
+<li><strong>Key Point</strong>: Adaptation ongoing.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Equifax Today] --&gt; B[Security Focus]
+                A --&gt; C[Stable Revenue]
+                A --&gt; D[Recovery Leader]
+            </div></section><section><p><em>"Today, Equifax prioritizes security, with stable revenue but fragile trust. It’s a leader in breach
+                recovery lessons, still adapting. This slide assesses its current state."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> How did Equifax regain stability?</li>
+<li><strong>Q2:</strong> Can trust fully recover?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "What metrics show Equifax’s security maturity now?"</li>
+<li><strong>A:</strong> Audit frequency, incident rates, and compliance scores reflect progress.</li>
+<li><strong>Reference:</strong> ISACA. (2020). "Cybersecurity Maturity Model Certification."</li>
+</ul></section></section>
+<!-- Slide 50 -->
+<section><section><h2>The Road Ahead</h2><ul>
+<li>Data breaches inevitable, response key.</li>
+<li>Tech, law, culture must align.</li>
+<li>Equifax a benchmark for resilience.</li>
+<li><strong>Key Point</strong>: Learn, adapt, endure.</li>
+</ul></section><section><div class="mermaid">
+                graph TD
+                A[Future] --&gt; B[Breaches Inevitable]
+                A --&gt; C[Tech-Law-Culture]
+                A --&gt; D[Equifax Benchmark]
+            </div></section><section><p><em>"Breaches will persist, but response defines survival. Tech, law, and culture must sync, with Equifax
+                as a resilience benchmark. This final slide urges learning, adaptation, and endurance."</em></p></section><section><h3>Reflect</h3><ul>
+<li><strong>Q1:</strong> Why are breaches inevitable?</li>
+<li><strong>Q2:</strong> What’s the biggest lesson?</li>
+</ul></section><section><h3>Questions </h3><ul>
+<li><strong>Q:</strong> "How can society balance data utility and security?"</li>
+<li><strong>A:</strong> Minimize data collection, enforce strict safeguards, and empower users with
+                    control.
+                </li>
+<li><strong>Reference:</strong> Nissenbaum, H. (2010). "Privacy in Context." <em>Stanford University
+                    Press</em>.
+                </li>
+</ul></section></section>
+<!-- Add this inside your slides section -->
+<section>
+<h3>Equifax's Compromised Network Architecture</h3>
+<div style="position: relative; height: 500px; background: #f8f8f8; border-radius: 10px; padding: 20px;">
+<!-- External Internet -->
+<div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); text-align: center;">
+<div style="background: #ff4444; color: white; padding: 10px; border-radius: 5px; width: 200px;">
+                        Attacker Entry Point<br/>
+<small>Dispute Portal (port 443)</small>
+</div>
+<div style="font-size: 30px; margin-top: 10px;">↓</div>
+</div>
+<!-- Compromised Server -->
+<div style="position: absolute; top: 120px; left: 30%; background: #ff6666; padding: 15px; border-radius: 8px; width: 220px;">
+<strong>Vulnerable Server</strong>
+<hr style="margin: 5px 0;"/>
+<div style="font-size: 0.8em;">
+                        • Apache Struts 2.3.32<br/>
+                        • Unpatched CVE-2017-5638<br/>
+                        • Root access achieved
+                    </div>
+</div>
+<!-- Internal Network (No Segmentation) -->
+<div style="position: absolute; top: 250px; left: 20%; right: 20%; height: 150px; border: 2px dashed #cc0000; border-radius: 8px; padding: 10px;">
+<div style="text-align: center; color: #cc0000; margin-bottom: 5px;">No Firewall Segmentation</div>
+<!-- ACIS Database -->
+<div style="position: absolute; left: 10%; top: 30%; background: #ff9999; padding: 10px; border-radius: 5px; width: 160px;">
+                        ACIS Database<br/>
+<small style="color: #666;">Plaintext Credentials</small>
+</div>
+<!-- Other Systems -->
+<div style="position: absolute; left: 40%; top: 30%; background: #ffcc66; padding: 10px; border-radius: 5px; width: 160px;">
+                        HR System<br/>
+<small style="color: #666;">Unencrypted PII</small>
+</div>
+<!-- Certificate Management -->
+<div style="position: absolute; left: 70%; top: 30%; background: #99ff99; padding: 10px; border-radius: 5px; width: 160px;">
+                        Certificate Authority<br/>
+<small style="color: #666;">Expired 7/29/2017</small>
+</div>
+</div>
+<!-- Attack Path Arrows -->
+<div style="position: absolute; top: 200px; left: 35%; width: 30%; border-top: 3px solid red; transform: rotate(45deg);"></div>
+<div style="position: absolute; top: 200px; left: 35%; width: 30%; border-top: 3px solid red; transform: rotate(-45deg);"></div>
+</div>
+<!-- Legend -->
+<div style="font-size: 0.6em; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;">
+<span style="color: #ff4444;">■</span> Compromised Systems |
+                <span style="color: #ffcc66;">■</span> Vulnerable Systems |
+                <span style="color: #99ff99;">■</span> Security Failures
+            </div>
+</section>
+</div>
+</div>
+<!-- Reveal.js Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.1.0/reveal.min.js"></script>
+<!-- Mermaid Script -->
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+<!-- Initialization Scripts -->
+<script>
+    mermaid.initialize({startOnLoad: true});
+    Reveal.initialize();
+</script>
+</body>
+</html>
