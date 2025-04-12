@@ -5,7 +5,7 @@ st.set_page_config(page_title="SEAS-8405: Week-4", layout="wide")
 
 
 def main():
-    st.title("Welcome to My Cybersecurity Architectures App")
+    st.title("SEAS-8405: Week-4")
     st.write("""
     This is the **main page**. Use the sidebar to navigate to the other pages.
 
