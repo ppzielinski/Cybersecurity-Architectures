@@ -1,0 +1,16 @@
+digraph Web_Service {
+	fontsize=16 label="Web Service Architecture" labelloc=t
+	User [label="User (Browser)"]
+	DNS [label="DNS Resolver"]
+	LB [label="Load Balancer"]
+	WS1 [label="Web Server 1 (Nginx)"]
+	WS2 [label="Web Server 2 (Apache)"]
+	Static [label="Static Content"]
+	App [label="Application Server"]
+	User -> DNS
+	DNS -> LB
+	LB -> WS1
+	LB -> WS2
+	WS1 -> Static
+	WS2 -> App
+}
