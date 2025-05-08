@@ -1,0 +1,37 @@
+digraph "Equifax Base Architecture" {
+	graph [fontcolor="#2D3436" fontname="Sans-Serif" fontsize=15 label="Equifax Base Architecture" nodesep=0.60 pad=2.0 rankdir=TB ranksep=0.75 splines=ortho]
+	node [fixedsize=true fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13 height=1.4 imagescale=true labelloc=b shape=box style=rounded width=1.4]
+	edge [color="#7B8894"]
+	f71ea42737594ab5a1094ef5cf47c352 [label=Internet height=1.9 image="/Users/piotrzielinski/Documents/Documents - zielin_MacBookPro/Doktorat/GitHub Repo/Cybersecurity_Architectures/Cybersecurity-Architectures/week-3/venv/lib/python3.12/site-packages/resources/onprem/client/users.png" shape=none]
+	cb82e1dd2f544cecb2d1ed9eda9a0f5c [label="External Users" height=1.9 image="/Users/piotrzielinski/Documents/Documents - zielin_MacBookPro/Doktorat/GitHub Repo/Cybersecurity_Architectures/Cybersecurity-Architectures/week-3/venv/lib/python3.12/site-packages/resources/onprem/client/users.png" shape=none]
+	subgraph "cluster_Public Web Layer" {
+		graph [bgcolor="#E5F5FD" fontname="Sans-Serif" fontsize=12 label="Public Web Layer" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+		a5d26b7479264daebe8a9234cb2afce6 [label="ACIS
+(Apache Struts 2)" height=2.3 image="/Users/piotrzielinski/Documents/Documents - zielin_MacBookPro/Doktorat/GitHub Repo/Cybersecurity_Architectures/Cybersecurity-Architectures/week-3/venv/lib/python3.12/site-packages/resources/programming/language/java.png" shape=none]
+		d9fddd5a5f8e4a71a839ddb0f901a920 [label="No WAF" height=1.9 image="/Users/piotrzielinski/Documents/Documents - zielin_MacBookPro/Doktorat/GitHub Repo/Cybersecurity_Architectures/Cybersecurity-Architectures/week-3/venv/lib/python3.12/site-packages/resources/generic/network/firewall.png" shape=none]
+	}
+	subgraph "cluster_Security Layer" {
+		graph [bgcolor="#E5F5FD" fontname="Sans-Serif" fontsize=12 label="Security Layer" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+		"7e3b590c960744cb86d8c404d1499c2a" [label="SSL Appliance
+(Expired Certs)" height=2.3 image="/Users/piotrzielinski/Documents/Documents - zielin_MacBookPro/Doktorat/GitHub Repo/Cybersecurity_Architectures/Cybersecurity-Architectures/week-3/venv/lib/python3.12/site-packages/resources/onprem/compute/server.png" shape=none]
+		"4c0a8f2c7e8f40768dea3c8a0b16bc08" [label="IDS
+Inactive" height=2.3 image="/Users/piotrzielinski/Documents/Documents - zielin_MacBookPro/Doktorat/GitHub Repo/Cybersecurity_Architectures/Cybersecurity-Architectures/week-3/venv/lib/python3.12/site-packages/resources/generic/network/switch.png" shape=none]
+	}
+	subgraph "cluster_Internal Network (Flat)" {
+		graph [bgcolor="#E5F5FD" fontname="Sans-Serif" fontsize=12 label="Internal Network (Flat)" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+		"16a6c5cb071745c0a8f1966d9199bc50" [label="App Server
+(Excessive Privileges)" height=2.3 image="/Users/piotrzielinski/Documents/Documents - zielin_MacBookPro/Doktorat/GitHub Repo/Cybersecurity_Architectures/Cybersecurity-Architectures/week-3/venv/lib/python3.12/site-packages/resources/onprem/compute/server.png" shape=none]
+		effa0c37e12b41898af1e19322d39c9d [label="PII DBs
+(Unencrypted)" height=2.3 image="/Users/piotrzielinski/Documents/Documents - zielin_MacBookPro/Doktorat/GitHub Repo/Cybersecurity_Architectures/Cybersecurity-Architectures/week-3/venv/lib/python3.12/site-packages/resources/onprem/database/postgresql.png" shape=none]
+		"270b363ffac649e5b0a28ad85c60666c" [label="Credentials
+Text Files" height=2.3 image="/Users/piotrzielinski/Documents/Documents - zielin_MacBookPro/Doktorat/GitHub Repo/Cybersecurity_Architectures/Cybersecurity-Architectures/week-3/venv/lib/python3.12/site-packages/resources/onprem/compute/server.png" shape=none]
+	}
+	f71ea42737594ab5a1094ef5cf47c352 -> cb82e1dd2f544cecb2d1ed9eda9a0f5c [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	cb82e1dd2f544cecb2d1ed9eda9a0f5c -> a5d26b7479264daebe8a9234cb2afce6 [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	a5d26b7479264daebe8a9234cb2afce6 -> d9fddd5a5f8e4a71a839ddb0f901a920 [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	a5d26b7479264daebe8a9234cb2afce6 -> "7e3b590c960744cb86d8c404d1499c2a" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"7e3b590c960744cb86d8c404d1499c2a" -> "4c0a8f2c7e8f40768dea3c8a0b16bc08" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	a5d26b7479264daebe8a9234cb2afce6 -> "16a6c5cb071745c0a8f1966d9199bc50" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"16a6c5cb071745c0a8f1966d9199bc50" -> effa0c37e12b41898af1e19322d39c9d [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"16a6c5cb071745c0a8f1966d9199bc50" -> "270b363ffac649e5b0a28ad85c60666c" [dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+}
